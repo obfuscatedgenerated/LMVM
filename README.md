@@ -106,3 +106,46 @@ count   DAT #0
     OUT            ; now the ACC holds 15
     HLT
 ```
+
+### Hello world (extended)
+
+```asm
+; lmvm-ext
+
+    ; enable string input/output mode
+    TXT
+    
+    ; push each ASCII character to the buffer
+    LDA #72
+    OUT
+    LDA #101
+    OUT
+    LDA #108
+    OUT
+    LDA #108
+    OUT
+    LDA #111
+    OUT
+    LDA #44
+    OUT
+    LDA #32
+    OUT
+    LDA #119
+    OUT
+    LDA #111
+    OUT
+    LDA #114
+    OUT
+    LDA #108
+    OUT
+    LDA #100
+    OUT
+    LDA #33
+    OUT
+    
+    ; output the buffer with the null terminator
+    LDA #0
+    OUT
+    
+    HLT
+```
