@@ -23,6 +23,32 @@
 |      | `DAT`    | Data declaration             |
 |      | `;`      | Comment                      |
 
+### Extended instruction set
+
+These instructions are unique to this implementation of the LMC.
+
+You can enable them by starting the file with `; lmvm-ext`.
+
+| Code | Mnemonic | Description                     |
+|------|----------|---------------------------------|
+| 903  | `ERR`    | Output to stderr                |
+| 904  | `TXT`    | Toggle string input/output mode |
+| 01x  | `SLP`    | Sleep for x milliseconds        |
+|      | `CST`    | Constant declaration            |
+|      | `IMP`    | Import file                     |
+
+The `ERR` instruction acts just like `OUT`, except it outputs to stderr instead of stdout.
+
+The `TXT` instruction toggles the string input/output mode. When enabled, the `INP` instruction will read the next character from stdin or #0 if the end of input is reached. The `OUT` instruction will push a char to the buffer, which will be displayed when #0 is outputted.
+
+The `SLP` instruction will sleep for x milliseconds. To attain a longer delay, call it multiple times.
+
+The `CST` pseudo-instruction is used to declare constants. It functions the same as `DAT`, except the value may not be changed.
+
+The `IMP` pseudo-instruction imports another file, where the relative or absolute path to it is named in place of the operand. This is accomplished by simply inserting the contents of the file on the line where this instruction is found, except any `DAT` declarations, which are inserted at the bottom to keep the program valid.
+
+> **Warning** There are no safeguards against circular imports. If you import a file that imports the current file, you will get an infinite loop. Additionally, no spaces are allowed in the file path.
+
 ## Addressing modes
 
 | Symbol | Description                        | Example       | Definition of mode                                                                       |
@@ -32,7 +58,8 @@
 | &      | Indirect                           | `ADD &5`      | Use the operand as an address to an address to the value                                 |
 | LABEL  | Direct (described by DAT at LABEL) | `ADD fivevar` | Use the operand as a label for the address to the value (as declared in a DAT statement) |
 
-> **Note** In a DAT statement, the operand will always be an immediate value, no matter how it is written (e.g. `var DAT 5` and `var DAT #5` are the same expression). It will only fail if the operand is a label.
+> **Note** In a DAT statement, the operand will always be an immediate value, no matter how it is written (
+> e.g. `var DAT 5` and `var DAT #5` are the same expression). It will only fail if the operand is a label.
 
 > **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an error.
 
@@ -58,4 +85,24 @@ end     HLT
         
         
 count   DAT #0
+```
+
+### Import example (extended)
+
+#### add_5.asm
+
+```asm
+    ADD #5
+```
+
+#### main.asm
+
+```asm
+; lmvm-ext
+
+    LDA #10        ; the ACC holds 10
+    OUT            ; output 10
+    IMP add_5.asm  ; import the add_5.asm file
+    OUT            ; now the ACC holds 15
+    HLT
 ```
