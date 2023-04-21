@@ -32,6 +32,8 @@
 | &      | Indirect                           | `ADD &5`      | Use the operand as an address to an address to the value                                 |
 | LABEL  | Direct (described by DAT at LABEL) | `ADD fivevar` | Use the operand as a label for the address to the value (as declared in a DAT statement) |
 
+> **Note** In a DAT statement, the operand will always be an immediate value, no matter how it is written (e.g. `var DAT 5` and `var DAT #5` are the same expression). It will only fail if the operand is a label.
+
 > **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an error.
 
 ## Using labels
