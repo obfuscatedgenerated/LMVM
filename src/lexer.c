@@ -48,9 +48,11 @@ int lex_line(char *line, size_t line_idx) {
     char *mnemonic = NULL;
     char *operand = NULL;
 
+    size_t operand_idx = 1;
+
     for (size_t idx = 0; idx < token_idx; idx++) {
         // check for a mnemonic
-        if (idx <= 1) {
+        if (idx <= operand_idx) {
             for (size_t mnemonic_idx = 0; mnemonic_idx < 9; mnemonic_idx++) {
                 if (strcmp(tokens[idx], mnemonics[mnemonic_idx]) == 0) {
                     // mnemonic found
@@ -61,9 +63,11 @@ int lex_line(char *line, size_t line_idx) {
                         return 1;
                     }
 
-                    // if this is the first token, NULL the label variable
+                    // if this is the first token, NULL the label variable and decrement the operand index
                     if (idx == 0) {
                         label = NULL;
+
+                        operand_idx--;
 
                         // this means that the line is in the format MNE OP rather than lbl MNE OP
                         // therefore, if there are 3 tokens on this line, error
