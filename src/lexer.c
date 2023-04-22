@@ -33,8 +33,8 @@ int lex_line(char *line, size_t line_idx) {
     // allocate array of tokens (up to 3)
     char *tokens[3];
 
-    // split the line by spaces
-    char *token = strtok(line, " ");
+    // split the line by spaces or tabs
+    char *token = strtok(line, "  \t");
     size_t token_idx = 0;
 
     while (token != NULL) {
@@ -48,7 +48,7 @@ int lex_line(char *line, size_t line_idx) {
         tokens[token_idx] = token;
 
         // get the next token
-        token = strtok(NULL, " ");
+        token = strtok(NULL, "  \t");
         token_idx++;
     }
 
