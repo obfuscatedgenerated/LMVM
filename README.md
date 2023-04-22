@@ -63,6 +63,18 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 
 > **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an error.
 
+### Extended addressing modes
+
+These addresssing modes are unique to this implementation of the LMC.
+
+You can enable them by starting the file with `; lmvm-ext`.
+
+| Symbol | Description | Example  | Definition of mode                                                                   |
+|--------|-------------|----------|--------------------------------------------------------------------------------------|
+| ~      | Absolute    | `ADD ~5` | Use the operand as an absolute address of the parent computer's memory to the value. |
+
+> **Warning** Expect SEGFAULTS and values too big for the LMC! Additionally, you are limited to addresses 00-99 of the parent computer's memory as with the LMC. There are no real uses for this addressing mode (unless you have some memory-mapped peripherals that are somehow using memory between 00 and 99 🤔), but it's there if you need it.
+
 ## Using labels
 
 Labels can be used as branching points, or as a name for a memory space when used with the DAT operation.
