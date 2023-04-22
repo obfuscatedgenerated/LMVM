@@ -67,6 +67,18 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 
 Labels can be used as branching points, or as a name for a memory space when used with the DAT operation.
 
+## Execution flags
+
+| Flag | Description                                                                    |
+|------|--------------------------------------------------------------------------------|
+| -h   | Display help                                                                   |
+| -v   | Display version                                                                |
+| -i   | Launch an interactive shell                                                    |
+| -D   | Enable debug mode                                                              |
+| -E   | Enable extended instruction set (alternative to `; lmvm-ext`, not recommended) |
+| -S   | Strict mode. Any warnings are treated as errors.                               |
+
+
 ## Example programs
 
 ### [Count to 5](examples/count_to_5.asm)
