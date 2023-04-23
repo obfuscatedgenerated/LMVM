@@ -4,7 +4,7 @@
 
 **A virtual machine to interpret & execute LMC assembly on your computer.**
 
-*(Functionally similar to but not the same as bytecode VMs like JVM. It's more like an interpreter than a VM.)*
+*(In the first version, it will be functionally similar to but not the same as bytecode VMs like JVM. It's more like an interpreter than a VM. Compilation to a VM bytecode will be added later.)*
 
 ## Mnemonics
 
@@ -27,7 +27,9 @@
 
 These instructions are unique to this implementation of the LMC.
 
-You can enable them by starting the file with `; lmvm-ext`.
+You can enable them by starting the file with `; lmvm-ext <version>`. The latest extended mode version is 1.
+
+> **Note** Opting into extended mode disables the VM and falls back to the classic interpreter. Extended LMC cannot be compiled so the VM is not used.
 
 | Code | Mnemonic | Description                     |
 |------|----------|---------------------------------|
@@ -53,27 +55,31 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 
 | Symbol | Description                        | Example       | Definition of mode                                                                       |
 |--------|------------------------------------|---------------|------------------------------------------------------------------------------------------|
-| #      | Immediate                          | `ADD #5`      | Use the operand as the value                                                             |
 | (none) | Direct                             | `ADD 5`       | Use the operand as an address to the value                                               |
-| &      | Indirect                           | `ADD &5`      | Use the operand as an address to an address to the value                                 |
 | LABEL  | Direct (described by DAT at LABEL) | `ADD fivevar` | Use the operand as a label for the address to the value (as declared in a DAT statement) |
 
-> **Note** In a DAT statement, the operand will always be an immediate value, no matter how it is written (
-> e.g. `var DAT 5` and `var DAT #5` are the same expression). It will only fail if the operand is a label.
-
 > **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an error.
+
+> **Note** In a DAT statement, the operand is an immediate value. It will only fail if the operand is a label. It is the initial value of the variable.
 
 ### Extended addressing modes
 
 These addresssing modes are unique to this implementation of the LMC.
 
-You can enable them by starting the file with `; lmvm-ext`.
+You can enable them by starting the file with `; lmvm-ext <version>`. The latest extended mode version is 1.
+
+> **Note** Opting into extended mode disables the VM and falls back to the classic interpreter. Extended LMC cannot be compiled so the VM is not used.
 
 | Symbol | Description | Example  | Definition of mode                                                                   |
 |--------|-------------|----------|--------------------------------------------------------------------------------------|
 | ~      | Absolute    | `ADD ~5` | Use the operand as an absolute address of the parent computer's memory to the value. |
+| &      | Indirect    | `ADD &5` | Use the operand as an address to an address to the value                             |
+| #      | Immediate   | `ADD #5` | Use the operand as the value                                                         |
 
-> **Warning** Expect SEGFAULTS and values too big for the LMC! Additionally, you are limited to addresses 00-99 of the parent computer's memory as with the LMC. There are no real uses for this addressing mode (unless you have some memory-mapped peripherals that are somehow using memory between 00 and 99 🤔), but it's there if you need it.
+> **Warning** For absolute addressing, expect SEGFAULTS and values too big for the LMC! Additionally, you are limited to addresses 00-99 of the parent computer's memory as with the LMC. There are no real uses for this addressing mode (unless you have some memory-mapped peripherals that are somehow using memory between 00 and 99 🤔), but it's there if you need it.
+
+> **Note** In a DAT statement, the operand will always be an immediate value, no matter how it is written (
+> e.g. `var DAT 5` and `var DAT #5` are the same expression). It will only fail if the operand is a label. It is the initial value of the variable.
 
 ## Using labels
 
@@ -89,6 +95,7 @@ Labels can be used as branching points, or as a name for a memory space when use
 | -D   | Enable debug mode                                                              |
 | -E   | Enable extended instruction set (alternative to `; lmvm-ext`, not recommended) |
 | -S   | Strict mode. Any warnings are treated as errors.                               |
+| -N   | No VM. Explicitly disables the VM and opts for the classic interpreter.        |
 
 
 ## Example programs
@@ -99,16 +106,18 @@ Labels can be used as branching points, or as a name for a memory space when use
 ; Count to 5
 
 loop    LDA count  ; load the value of count into the accumulator
-        ADD #1
+        ADD one
         OUT        ; output the value of the accumulator
         STA count  ; hold the value of the accumulator into count
-        SUB #5     ; subtract 5 from the accumulator...
+        SUB five   ; subtract 5 from the accumulator...
         BRZ end    ; ...to therefore stop execution if the count is 5 (ACC=0)
         BRA loop   ; else, branch to loop
 end     HLT
         
         
-count   DAT #0
+count   DAT 0
+one     DAT 1
+five    DAT 5
 ```
 
 ### Import example (extended)
@@ -116,13 +125,15 @@ count   DAT #0
 #### add_5.asm
 
 ```asm
+; lmvm-ext 1
+
     ADD #5
 ```
 
 #### main.asm
 
 ```asm
-; lmvm-ext
+; lmvm-ext 1
 
     LDA #10        ; the ACC holds 10
     OUT            ; output 10
@@ -134,7 +145,7 @@ count   DAT #0
 ### Hello world (extended)
 
 ```asm
-; lmvm-ext
+; lmvm-ext 1
 
     ; enable string input/output mode
     TXT
