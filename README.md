@@ -64,7 +64,7 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 
 ### Extended addressing modes
 
-These addresssing modes are unique to this implementation of the LMC.
+These addressing modes are unique to this implementation of the LMC.
 
 You can enable them by starting the file with `; lmvm-ext <version>`. The latest extended mode version is 1.
 
