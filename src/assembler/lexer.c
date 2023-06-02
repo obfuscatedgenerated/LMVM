@@ -1,4 +1,4 @@
-#include "compiler/lexer.h"
+#include "assembler/lexer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +40,8 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     while (token != NULL) {
         // do not allow more than 3 tokens
         if (token_idx == 3) {
+            // TODO: figure out why i have to add 2 rather than 1 to the line index to have it match up to human expectations
+            // (e.g. index 0 should read as line 1)
             fprintf(stderr, "\nError: Too many tokens on line %llu. STOP.\n", line_idx + 2);
             return (tagged_lex_result_st) {
                     .is_status_code = 1,
@@ -155,7 +157,7 @@ tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
         line++;
     }
 
-    // if no content remains in the line, return
+    // if no content remains in the line, return a newline token, denoted by status code 0
     if (strlen(line) == 0) {
         return (tagged_lex_result_st) {
                 .is_status_code = 1,
@@ -169,7 +171,7 @@ tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
         *comment_start = '\0';
     }
 
-    // if no content remains in the line, return
+    // if no content remains in the line, return a newline token, denoted by status code 0
     if (strlen(line) == 0) {
         return (tagged_lex_result_st) {
                 .is_status_code = 1,
@@ -183,7 +185,7 @@ tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
         line_length--;
     }
 
-    // if no content remains in the line, return
+    // if no content remains in the line, return a newline token, denoted by status code 0
     if (strlen(line) == 0) {
         return (tagged_lex_result_st) {
                 .is_status_code = 1,
@@ -246,17 +248,16 @@ token_ll_node_st *lex(char *code) {
         tagged_lex_result_st res = prepare_and_lex_line(line_copy, line_idx);
 
         // return the status code if it is not 0
-        // 0: nothing parsed
+        // 0: newline
         // 1: lex error
         if (res.is_status_code != 0 && res.value.status_code != 0) {
             exit(res.value.status_code);
         }
 
         // push the token to the linked list
-        // token can be null if status code was 0
-        if (res.value.token != NULL) {
-            push_to_tokens(current_token, res.value.token);
-        }
+        // if the status code was 0, NULL will be pushed to represent a newline
+        // TODO: this isnt that intuitive, modify structs to explicitly be able to represent newlines
+        push_to_tokens(current_token, res.value.token);
 
         // use strtok_r to keep context across the scope of the loop
         line = strtok_r(NULL, "\n", &strmax);

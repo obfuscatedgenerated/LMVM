@@ -7,7 +7,7 @@
 ## Executables
 
 ### [LMVM (virtual machine)](src/vm)
-### [LMASM (compiler)](src/compiler)
+### [LMASM (assembler)](src/assembler)
 
 ## Mnemonics
 

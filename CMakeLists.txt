@@ -4,7 +4,7 @@ project(LMVM C)
 set(CMAKE_C_STANDARD 99)
 
 # scan source files
-file(GLOB_RECURSE LMASM_SOURCES ${PROJECT_SOURCE_DIR}/src/compiler/*.c)
+file(GLOB_RECURSE LMASM_SOURCES ${PROJECT_SOURCE_DIR}/src/assembler/*.c)
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/vm/*.c)
 
 # include header files

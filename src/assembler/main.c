@@ -1,8 +1,8 @@
-#include "compiler/lexer.h"
+#include "assembler/lexer.h"
+#include "assembler/validator.h"
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 int main() {
     char *code = "; Count to 5\n"
@@ -25,13 +25,10 @@ int main() {
     char *code_buffer = malloc(strlen(code) + 1);
     strcpy(code_buffer, code);
 
+    // lex and validate the code
     token_ll_node_st *tokens_head = lex(code_buffer);
-
-    // print the tokens
-    token_ll_node_st *current = tokens_head;
-    while (current != NULL) {
-        printf("Mnemonic: %s\n", current->token->mnemonic);
-        current = current->next;
+    if (validate(tokens_head) != 0) {
+        return 1;
     }
 
     return 0;
