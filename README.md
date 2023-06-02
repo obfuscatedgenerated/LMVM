@@ -4,6 +4,8 @@
 
 **A compiler + virtual machine to execute LMC assembly on your computer.**
 
+**NOTE: this README references extended modes. This feature is not yet implemented. It is documented to serve as a reference for future work.**
+
 ## Executables
 
 ### [LMVM (virtual machine)](src/vm)
@@ -34,8 +36,6 @@ These instructions are unique to this implementation of the LMC.
 
 You can enable them by starting the file with `; lmvm-ext <version>`. The latest extended mode version is 1.
 
-> **Note** Opting into extended mode disables the VM and falls back to the classic interpreter. Extended LMC cannot be compiled so the VM is not used.
-
 | Code | Mnemonic | Description                     |
 |------|----------|---------------------------------|
 | 903  | `ERR`    | Output to stderr                |
@@ -63,7 +63,7 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 | (none) | Direct                             | `ADD 5`       | Use the operand as an address to the value                                               |
 | LABEL  | Direct (described by DAT at LABEL) | `ADD fivevar` | Use the operand as a label for the address to the value (as declared in a DAT statement) |
 
-> **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an status_code.
+> **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an error.
 
 > **Note** In a DAT statement, the operand is an immediate value. It will only fail if the operand is a label. It is the initial value of the variable.
 
@@ -72,8 +72,6 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 These addressing modes are unique to this implementation of the LMC.
 
 You can enable them by starting the file with `; lmvm-ext <version>`. The latest extended mode version is 1.
-
-> **Note** Opting into extended mode disables the VM and falls back to the classic interpreter. Extended LMC cannot be compiled so the VM is not used.
 
 | Symbol | Description | Example  | Definition of mode                                                                   |
 |--------|-------------|----------|--------------------------------------------------------------------------------------|
@@ -92,16 +90,27 @@ Labels can be used as branching points, or as a name for a memory space when use
 
 ## Execution flags
 
-| Flag | Description                                                                    |
-|------|--------------------------------------------------------------------------------|
-| -h   | Display help                                                                   |
-| -v   | Display version                                                                |
-| -i   | Launch an interactive shell                                                    |
-| -D   | Enable debug mode                                                              |
-| -E   | Enable extended instruction set (alternative to `; lmvm-ext`, not recommended) |
-| -S   | Strict mode. Any warnings are treated as errors.                               |
-| -N   | No VM. Explicitly disables the VM and opts for the classic interpreter.        |
+### Assembler
 
+| Flag       | Description                            |
+|------------|----------------------------------------|
+| -i \<file> | Input file **(required)**              |
+| -o \<file> | Output file **(required)**             |
+| -h         | Display help                           |
+| -v         | Display version                        |
+| -D         | Enable debug mode                      |
+| -S         | Strict mode. Treat warnings as errors. |
+
+### Virtual machine
+
+| Flag       | Description                                                                    |
+|------------|--------------------------------------------------------------------------------|
+| -i \<file> | Input file **(required)**                                                      |
+| -l \<file> | Log file                                                                       |
+| -h         | Display help                                                                   |
+| -v         | Display version                                                                |
+| -D         | Enable debug mode                                                              |
+|
 
 ## Example programs
 
