@@ -1,6 +1,7 @@
 #include "assembler/lexer.h"
 #include "assembler/validator.h"
 #include "assembler/execgen.h"
+#include "common/executable_props.h"
 
 #include <string.h>
 #include <stdlib.h>

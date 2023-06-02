@@ -1,5 +1,6 @@
 #include "assembler/execgen.h"
 #include "assembler/lexer.h"
+#include "common/executable_props.h"
 
 #include <stdlib.h>
 #include <string.h>
