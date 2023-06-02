@@ -11,7 +11,7 @@ int main() {
                  "        ADD one\n"
                  "        OUT        ; output the value of the accumulator\n"
                  "        STA count  ; hold the value of the accumulator into count\n"
-                 "        SUB five     ; subtract 5 from the accumulator...\n"
+                 "        SUB five   ; subtract 5 from the accumulator...\n"
                  "        BRZ end    ; ...to therefore stop execution if the count is 5 (ACC=0)\n"
                  "        BRA loop   ; else, branch to loop\n"
                  "end     HLT\n"

@@ -105,6 +105,20 @@ int validate_labels(token_ll_node_st *tokens_head) {
 }
 
 int validate(token_ll_node_st *tokens_head) {
-    // wrapped so more validation can be added later
+    // validate that INP, OUT, and HLT have no operands
+    token_ll_node_st *current = tokens_head;
+    size_t line_idx = 1;
+    while(current != NULL) {
+        if (strcmp(current->token->mnemonic, "INP") == 0 || strcmp(current->token->mnemonic, "OUT") == 0 || strcmp(current->token->mnemonic, "HLT") == 0) {
+            if (current->token->operand != NULL) {
+                fprintf(stderr, "Error: mnemonic \"%s\" near line %zu must not have an operand.\n", current->token->mnemonic, line_idx);
+                return 1;
+            }
+        }
+
+        line_idx++;
+        current = current->next;
+    }
+
     return validate_labels(tokens_head);
 }
