@@ -17,6 +17,9 @@ union lex_result_u {
 
 typedef union lex_result_u lex_result_ut;
 
+#define LEX_STATUS_NO_CONTENT 0
+#define LEX_STATUS_ERROR 1
+
 struct tagged_lex_result_s {
     int is_status_code;
     lex_result_ut value;

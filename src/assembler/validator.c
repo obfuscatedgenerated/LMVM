@@ -51,25 +51,15 @@ int validate_labels(token_ll_node_st *tokens_head) {
     label_doubly_ll_node_st *known_labels_head = NULL;
     label_doubly_ll_node_st **known_labels_current = &known_labels_head;
 
-    // TODO: figure out why i have to add 2 rather than 1 to the line index to have it match up to human expectations
-    // (e.g. index 0 should read as line 1)
-    size_t line_idx = 2;
+    size_t line_idx = 1;
     token_ll_node_st *current = tokens_head;
 
     // iterate through the tokens to verify each label name is valid
     while(current != NULL) {
-        // if the token is NULL, it is a newline
-        // add to line index and skip to the next token
-        if (current->token == NULL) {
-            line_idx++;
-            current = current->next;
-            continue;
-        }
-
         // DATs must have a label
         if (strcmp(current->token->mnemonic, "DAT") == 0) {
             if (current->token->label == NULL) {
-                fprintf(stderr, "Error: DAT on line %zu must have a label\n", line_idx);
+                fprintf(stderr, "Error: DAT near line %zu must have a label. Line has mnemonic: %s\n", line_idx, current->token->mnemonic);
                 return 1;
             }
         }
@@ -79,7 +69,7 @@ int validate_labels(token_ll_node_st *tokens_head) {
             // check the label is valid
             int label_validation_result = validate_label_name(current->token->label, known_labels_current);
             if (label_validation_result != LABEL_VALIDATION_RESULT_OK_DOESNT_EXIST) {
-                fprintf(stderr, "Error: label \"%s\" on line %zu is invalid or already exists\n", current->token->label, line_idx);
+                fprintf(stderr, "Error: label \"%s\" near line %zu is invalid or already exists. Line has mnemonic: %s\n", current->token->label, line_idx, current->token->mnemonic);
                 return 1;
             }
 
@@ -92,25 +82,17 @@ int validate_labels(token_ll_node_st *tokens_head) {
     }
 
 
-    line_idx = 2;
+    line_idx = 1;
     current = tokens_head;
 
     // after validating and loading in all the label names, check that any label operands refer to a valid label
     while(current != NULL) {
-        // if the token is NULL, it is a newline
-        // add to line index and skip to the next token
-        if (current->token == NULL) {
-            line_idx++;
-            current = current->next;
-            continue;
-        }
-
         // if the token has an operand that consists only of letters, it must be a label
         // check the label exists
         if (current->token->operand != NULL) {
             int operand_validation_result = validate_label_name(current->token->operand, known_labels_current);
             if (operand_validation_result == LABEL_VALIDATION_RESULT_OK_DOESNT_EXIST) {
-                fprintf(stderr, "Error: label \"%s\" on line %zu doesn't exist\n", current->token->operand, line_idx);
+                fprintf(stderr, "Error: label \"%s\" near line %zu doesn't exist. Line has mnemonic: %s\n", current->token->operand, line_idx, current->token->mnemonic);
                 return 1;
             }
         }
