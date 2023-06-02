@@ -46,9 +46,9 @@ int main() {
         current = next;
     }
 
-    // print the executable as a test (0 - 99)
+    // print the executable as a test
     puts("Executable:");
-    for (size_t i = 0; i < 99; i++) {
+    for (size_t i = 0; i < EXECUTABLE_SIZE - 1; i++) {
         printf("%zu: %u\n", i, executable[i]);
     }
 
