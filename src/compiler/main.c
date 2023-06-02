@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 int main() {
     char *code = "; Count to 5\n"
@@ -24,5 +25,14 @@ int main() {
     char *code_buffer = malloc(strlen(code) + 1);
     strcpy(code_buffer, code);
 
-    return lex(code_buffer);
+    token_ll_node_st *tokens_head = lex(code_buffer);
+
+    // print the tokens
+    token_ll_node_st *current = tokens_head;
+    while (current != NULL) {
+        printf("Mnemonic: %s\n", current->token->mnemonic);
+        current = current->next;
+    }
+
+    return 0;
 }

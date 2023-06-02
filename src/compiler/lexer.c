@@ -29,7 +29,7 @@ char *ext_mnemonics[] = {
 };
 
 // lex the line
-int lex_line(char *line, size_t line_idx) {
+tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     // allocate array of tokens (up to 3)
     char *tokens[3];
 
@@ -40,8 +40,11 @@ int lex_line(char *line, size_t line_idx) {
     while (token != NULL) {
         // do not allow more than 3 tokens
         if (token_idx == 3) {
-            fprintf(stderr, "\nError: Too many tokens on line %llu.\n", line_idx + 1);
-            return 1;
+            fprintf(stderr, "\nError: Too many tokens on line %llu. STOP.\n", line_idx + 2);
+            return (tagged_lex_result_st) {
+                    .is_status_code = 1,
+                    .value = (lex_result_ut) {1}
+            };
         }
 
         // add the token to the array
@@ -65,10 +68,13 @@ int lex_line(char *line, size_t line_idx) {
                 if (strcmp(tokens[idx], mnemonics[mnemonic_idx]) == 0) {
                     // mnemonic found
 
-                    // if a mnemonic has already been found, error
+                    // if a mnemonic has already been found, put error
                     if (mnemonic != NULL) {
-                        fprintf(stderr, "\nError: Duplicate mnemonic encountered on line %llu.\n", line_idx + 1);
-                        return 1;
+                        fprintf(stderr, "\nError: Duplicate mnemonic encountered on line %llu. STOP.\n", line_idx + 2);
+                        return (tagged_lex_result_st) {
+                                .is_status_code = 1,
+                                .value = (lex_result_ut) {1}
+                        };
                     }
 
                     // if this is the first token, NULL the label variable and decrement the operand index
@@ -78,10 +84,13 @@ int lex_line(char *line, size_t line_idx) {
                         operand_idx--;
 
                         // this means that the line is in the format MNE OP rather than lbl MNE OP
-                        // therefore, if there are 3 tokens on this line, error
+                        // therefore, if there are 3 tokens on this line, put error
                         if (token_idx == 3) {
-                            fprintf(stderr, "\nError: Too many tokens on line %llu.\n", line_idx + 1);
-                            return 1;
+                            fprintf(stderr, "\nError: Too many tokens on line %llu. STOP.\n", line_idx + 2);
+                            return (tagged_lex_result_st) {
+                                    .is_status_code = 1,
+                                    .value = (lex_result_ut) {1}
+                            };
                         }
                     }
 
@@ -91,16 +100,13 @@ int lex_line(char *line, size_t line_idx) {
                 }
             }
         } else {
-            // if no mnemonic has been found, error
-            if (mnemonic == NULL) {
-                fprintf(stderr, "\nError: No mnemonic encountered on line %llu.\n", line_idx + 1);
-                return 1;
-            }
-
-            // if an operand has already been found, error
+            // if an operand has already been found, put error
             if (operand != NULL) {
-                fprintf(stderr, "\nError: Duplicate operand encountered on line %llu.\n", line_idx + 1);
-                return 1;
+                fprintf(stderr, "\nError: Duplicate operand encountered on line %llu. STOP.\n", line_idx + 2);
+                return (tagged_lex_result_st) {
+                        .is_status_code = 1,
+                        .value = (lex_result_ut) {1}
+                };
             }
 
             // set the operand
@@ -108,23 +114,38 @@ int lex_line(char *line, size_t line_idx) {
         }
     }
 
-    printf("Label: %s | ", label);
-    printf("Mnemonic: %s | ", mnemonic);
-    printf("Operand: %s\n", operand);
+    // if no mnemonic has been found, put error
+    if (mnemonic == NULL) {
+        fprintf(stderr, "\nError: Missing or invalid mnemonic encountered on line %llu. STOP.\n", line_idx + 2);
+        return (tagged_lex_result_st) {
+                .is_status_code = 1,
+                .value = (lex_result_ut) {1}
+        };
+    }
 
-    // TODO: operands not working
+    // create value
+    token_st *token_struct = malloc(sizeof(token_st));
+    token_struct->label = label;
+    token_struct->mnemonic = mnemonic;
+    token_struct->operand = operand;
 
-    return 0;
+    return (tagged_lex_result_st) {
+            .is_status_code = 0,
+            .value = (lex_result_ut) {.token = token_struct}
+    };
 }
 
-// prepare to lex a single line of code
-int prepare_line(char *line, size_t line_idx) {
+// prepare and lex a single line of code
+tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
     // execute the regex on the line (assured to be compiled at this point)
     int regex_result = regexec(&line_whitespace_regex, line, 0, NULL, 0);
 
     // if the line only contains whitespace, return
     if (regex_result != REG_NOMATCH) {
-        return 0;
+        return (tagged_lex_result_st) {
+                .is_status_code = 1,
+                .value = (lex_result_ut) {1}
+        };
     }
 
     size_t line_length = strlen(line);
@@ -136,7 +157,10 @@ int prepare_line(char *line, size_t line_idx) {
 
     // if no content remains in the line, return
     if (strlen(line) == 0) {
-        return 0;
+        return (tagged_lex_result_st) {
+                .is_status_code = 1,
+                .value = (lex_result_ut) {0}
+        };
     }
 
     // strip comments from the line (all text after a ;, including the ;)
@@ -147,7 +171,10 @@ int prepare_line(char *line, size_t line_idx) {
 
     // if no content remains in the line, return
     if (strlen(line) == 0) {
-        return 0;
+        return (tagged_lex_result_st) {
+                .is_status_code = 1,
+                .value = (lex_result_ut) {0}
+        };
     }
 
     // strip trailing whitespace from the line
@@ -158,21 +185,53 @@ int prepare_line(char *line, size_t line_idx) {
 
     // if no content remains in the line, return
     if (strlen(line) == 0) {
-        return 0;
+        return (tagged_lex_result_st) {
+                .is_status_code = 1,
+                .value = (lex_result_ut) {0}
+        };
     }
 
     // if content remains in the line, continue lexing
     return lex_line(line, line_idx);
 }
 
-// lex an entire program
-int lex(char *code) {
+
+// add to the linked list of tokens
+void push_to_tokens(token_ll_node_st **current, token_st *token) {
+    // create a new node
+    token_ll_node_st *new_node = malloc(sizeof(token_ll_node_st));
+    new_node->token = token;
+    new_node->next = NULL;
+
+    // if the current node is NULL, set the current node to the new node
+    if (*current == NULL) {
+        *current = new_node;
+        return;
+    }
+
+    // otherwise, iterate through the linked list until the end is reached
+    token_ll_node_st *current_node = *current;
+    while (current_node->next != NULL) {
+        current_node = current_node->next;
+    }
+
+    // set the next node to the new node
+    current_node->next = new_node;
+}
+
+
+// lex an entire program, returning the head of a linked list of tokens
+token_ll_node_st *lex(char *code) {
     // compile a regex to check if the line only contains whitespace (used later)
     int reg_comp_result = regcomp(&line_whitespace_regex, "^[[:space:]]*$", 0);
     if (reg_comp_result != 0) {
         fputs("Fatal Internal Error: Could not compile line_whitespace_regex.", stderr);
-        return 1;
+        exit(1);
     }
+
+    // create a linked list to store the tokens, setting the current node to the head
+    token_ll_node_st *head_token = NULL;
+    token_ll_node_st **current_token = &head_token;
 
     // run line-by-line lexing by splitting by newlines
     char *strmax;
@@ -184,10 +243,19 @@ int lex(char *code) {
         char *line_copy = malloc(strlen(line) + 1);
         strcpy(line_copy, line);
 
-        int exit_code = prepare_line(line_copy, line_idx);
+        tagged_lex_result_st res = prepare_and_lex_line(line_copy, line_idx);
 
-        if (exit_code != 0) {
-            return exit_code;
+        // return the status code if it is not 0
+        // 0: nothing parsed
+        // 1: lex error
+        if (res.is_status_code != 0 && res.value.status_code != 0) {
+            exit(res.value.status_code);
+        }
+
+        // push the token to the linked list
+        // token can be null if status code was 0
+        if (res.value.token != NULL) {
+            push_to_tokens(current_token, res.value.token);
         }
 
         // use strtok_r to keep context across the scope of the loop
@@ -195,5 +263,5 @@ int lex(char *code) {
         line_idx++;
     }
 
-    return 0;
+    return head_token;
 }

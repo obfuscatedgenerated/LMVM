@@ -26,6 +26,8 @@
 |      | `DAT`    | Data declaration             |
 |      | `;`      | Comment                      |
 
+<!-- TODO: possibly at OTC: 922 from peter higginson's lmc to the standard mnemonics -->
+
 ### Extended instruction set
 
 These instructions are unique to this implementation of the LMC.
@@ -61,7 +63,7 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 | (none) | Direct                             | `ADD 5`       | Use the operand as an address to the value                                               |
 | LABEL  | Direct (described by DAT at LABEL) | `ADD fivevar` | Use the operand as a label for the address to the value (as declared in a DAT statement) |
 
-> **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an error.
+> **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an status_code.
 
 > **Note** In a DAT statement, the operand is an immediate value. It will only fail if the operand is a label. It is the initial value of the variable.
 
