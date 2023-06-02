@@ -117,7 +117,7 @@ Additionally, these arguments are available:
 
 ## Example programs
 
-### [Count to 5](examples/count_to_5.asm)
+### [Count to 5](examples/count_to_5.lmasm)
 
 ```asm
 ; Count to 5
