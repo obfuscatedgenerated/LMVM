@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// converts tokens into a sequence of unsigned integers (little man's machine binary)
+// converts tokens into a sequence of unsigned integers (LMCX executable)
 // classic LMC has 100 memory addresses, so the executable is 100 unsigned integers
 // we may expand this when extended LMC is implemented
 unsigned int *generate_executable(token_ll_node_st *tokens_head) {
