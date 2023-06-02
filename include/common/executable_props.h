@@ -11,7 +11,7 @@
 // extended lmc files will start with LMCXTENDED, followed by the major version, minor version, patch version, and the data
 // both have file extensions of .lmc
 
-#define FILE_EXT_LMC "lmc"
+#define DEFAULT_FILE_EXT "lmc"
 
 #define MAGIC_STRING_LMC "LMCX"
 #define MAGIC_STRING_LMC_EXTENDED "LMCXTENDED"

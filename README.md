@@ -88,29 +88,32 @@ You can enable them by starting the file with `; lmvm-ext <version>`. The latest
 
 Labels can be used as branching points, or as a name for a memory space when used with the DAT operation.
 
-## Execution flags
+## Execution arguments
 
 ### Assembler
 
-| Flag       | Description                            |
-|------------|----------------------------------------|
-| -i \<file> | Input file **(required)**              |
-| -o \<file> | Output file **(required)**             |
-| -h         | Display help                           |
-| -v         | Display version                        |
-| -D         | Enable debug mode                      |
-| -S         | Strict mode. Treat warnings as errors. |
+The first positional argument is the input file to use as the entrypoint. It is **required**.<br />
+Additionally, these arguments are available:
+
+| Short arg  | Long arg         | Description                            |
+|------------|------------------|----------------------------------------|
+| -o \<file> | --output \<file> | Output file **(also required)**        |
+| -h         | --help           | Display help                           |
+| -v         | --version        | Display version                        |
+| -D         | --debug          | Enable debug mode                      |
+| -S         | --strict         | Strict mode. Treat warnings as errors. |
 
 ### Virtual machine
 
-| Flag       | Description                                                                    |
-|------------|--------------------------------------------------------------------------------|
-| -i \<file> | Input file **(required)**                                                      |
-| -l \<file> | Log file                                                                       |
-| -h         | Display help                                                                   |
-| -v         | Display version                                                                |
-| -D         | Enable debug mode                                                              |
-|
+The first positional argument is the file to execute. It is **required**.<br />
+Additionally, these arguments are available:
+
+| Short arg  | Long arg           | Description               |
+|------------|--------------------|---------------------------|
+| -l \<file> | --log-file \<file> | Log file                  |
+| -h         | --help             | Display help              |
+| -v         | --version          | Display version           |
+| -D         | --debug            | Enable debug mode         |
 
 ## Example programs
 
