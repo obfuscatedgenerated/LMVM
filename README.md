@@ -2,9 +2,12 @@
 
 > Did you mean: [LLVM](https://llvm.org/)? 🙄
 
-**A virtual machine to interpret & execute LMC assembly on your computer.**
+**A compiler + virtual machine to execute LMC assembly on your computer.**
 
-*(In the first version, it will be functionally similar to but not the same as bytecode VMs like JVM. It's more like an interpreter than a VM. Compilation to a VM bytecode will be added later.)*
+## Executables
+
+### [LMVM (virtual machine)](src/vm)
+### [LMASM (compiler)](src/compiler)
 
 ## Mnemonics
 
