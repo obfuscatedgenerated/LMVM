@@ -1,8 +1,10 @@
 #include "assembler/lexer.h"
 #include "assembler/validator.h"
+#include "assembler/execgen.h"
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 int main() {
     char *code = "; Count to 5\n"
@@ -29,6 +31,25 @@ int main() {
     token_ll_node_st *tokens_head = lex(code_buffer);
     if (validate(tokens_head) != 0) {
         return 1;
+    }
+
+    // generate the executable
+    unsigned int *executable = generate_executable(tokens_head);
+
+    // free the tokens
+    token_ll_node_st *current = tokens_head;
+    while (current != NULL) {
+        token_ll_node_st *next = current->next;
+        free(current->token);
+        // TODO; may need to free each field of token, but it seems to crash when i do that sometimes
+        free(current);
+        current = next;
+    }
+
+    // print the executable as a test (0 - 99)
+    puts("Executable:");
+    for (size_t i = 0; i < 99; i++) {
+        printf("%zu: %u\n", i, executable[i]);
     }
 
     return 0;

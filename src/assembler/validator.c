@@ -8,6 +8,27 @@
 #include <stdio.h>
 
 
+// validate that INP, OUT, and HLT have no operands
+int validate_inp_out_hlt(token_ll_node_st *tokens_head) {
+    token_ll_node_st *current = tokens_head;
+    size_t line_idx = 1;
+
+    while(current != NULL) {
+        if (strcmp(current->token->mnemonic, "INP") == 0 || strcmp(current->token->mnemonic, "OUT") == 0 || strcmp(current->token->mnemonic, "HLT") == 0) {
+            if (current->token->operand != NULL) {
+                fprintf(stderr, "Error: mnemonic \"%s\" near line %zu must not have an operand.\n", current->token->mnemonic, line_idx);
+                return 1;
+            }
+        }
+
+        line_idx++;
+        current = current->next;
+    }
+
+    return 0;
+}
+
+
 // checks it consists only of letters, and hasn't been used before
 // returns 0 if valid, 1 if invalid, 2 if already used
 label_validation_result_et validate_label_name(char *label, label_doubly_ll_node_st **known_labels_current) {
@@ -18,6 +39,10 @@ label_validation_result_et validate_label_name(char *label, label_doubly_ll_node
             return LABEL_VALIDATION_RESULT_INVALID;
         }
         current_char++;
+    }
+
+    if (known_labels_current == NULL) {
+        return LABEL_VALIDATION_RESULT_OK_DOESNT_EXIST;
     }
 
     // search backwards through the known labels to check the label hasn't been used before
@@ -104,21 +129,61 @@ int validate_labels(token_ll_node_st *tokens_head) {
     return 0;
 }
 
-int validate(token_ll_node_st *tokens_head) {
-    // validate that INP, OUT, and HLT have no operands
+// all numerical operands must be between 0 and 99
+int validate_numerical_operands(token_ll_node_st *tokens_head) {
     token_ll_node_st *current = tokens_head;
     size_t line_idx = 1;
-    while(current != NULL) {
-        if (strcmp(current->token->mnemonic, "INP") == 0 || strcmp(current->token->mnemonic, "OUT") == 0 || strcmp(current->token->mnemonic, "HLT") == 0) {
-            if (current->token->operand != NULL) {
-                fprintf(stderr, "Error: mnemonic \"%s\" near line %zu must not have an operand.\n", current->token->mnemonic, line_idx);
+
+    while (current != NULL) {
+        // if the operand is NULL, skip
+        if (current->token->operand == NULL) {
+            current = current->next;
+            line_idx++;
+            continue;
+        }
+
+        // if the operand is a label, skip
+        if (validate_label_name(current->token->operand, NULL) != LABEL_VALIDATION_RESULT_INVALID) {
+            current = current->next;
+            line_idx++;
+            continue;
+        }
+
+        // if the operand is not numerical, it is a syntax error
+        for (size_t i = 0; i < strlen(current->token->operand); i++) {
+            if (current->token->operand[i] < '0' || current->token->operand[i] > '9') {
+                fprintf(stderr, "Error: operand \"%s\" near line %zu is not numerical or a valid label. Line has mnemonic: %s\n", current->token->operand, line_idx, current->token->mnemonic);
                 return 1;
             }
+        }
+
+        // if the operand is numerical, check it is between 0 and 99
+        int value = strtol(current->token->operand, NULL, 10);
+        if (value < 0 || value > 99) {
+            fprintf(stderr, "Error: operand \"%s\" near line %zu is not between 0 and 99. Line has mnemonic: %s\n", current->token->operand, line_idx, current->token->mnemonic);
+            return 1;
         }
 
         line_idx++;
         current = current->next;
     }
 
-    return validate_labels(tokens_head);
+    return 0;
+}
+
+
+int validate(token_ll_node_st *tokens_head) {
+    if (validate_inp_out_hlt(tokens_head) != 0) {
+        return 1;
+    }
+
+    if (validate_labels(tokens_head) != 0) {
+        return 1;
+    }
+
+    if (validate_numerical_operands(tokens_head) != 0) {
+        return 1;
+    }
+
+    return 0;
 }
