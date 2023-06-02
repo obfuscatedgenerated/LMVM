@@ -95,7 +95,7 @@ char *read_text_file(char *path) {
 }
 
 
-write_status_et write_lmcx_file(lmcx_file_descriptor_st lmcx, char *path, int overwrite) {
+write_status_et write_lmcx_file(lmcx_file_descriptor_st *lmcx, char *path, int overwrite) {
     FILE *file = fopen(path, "rb");
 
     // check if the file exists
@@ -114,18 +114,18 @@ write_status_et write_lmcx_file(lmcx_file_descriptor_st lmcx, char *path, int ov
     }
 
     // determine if using lmvm-ext
-    int using_lmvm_ext = lmcx.ext_version[0] != 0 || lmcx.ext_version[1] != 0 || lmcx.ext_version[2] != 0;
+    int using_lmvm_ext = lmcx->ext_version[0] != 0 || lmcx->ext_version[1] != 0 || lmcx->ext_version[2] != 0;
 
     // write the magic string
     if (using_lmvm_ext) {
         fwrite(MAGIC_STRING_LMC_EXTENDED, sizeof(char), strlen(MAGIC_STRING_LMC_EXTENDED), file);
-        fwrite(lmcx.ext_version, sizeof(unsigned int), 3, file);
+        fwrite(lmcx->ext_version, sizeof(unsigned int), 3, file);
     } else {
         fwrite(MAGIC_STRING_LMC, sizeof(char), strlen(MAGIC_STRING_LMC), file);
     }
 
     // write the data
-    fwrite(lmcx.data, sizeof(unsigned int), lmcx.data_size, file);
+    fwrite(lmcx->data, sizeof(unsigned int), lmcx->data_size, file);
 
     fclose(file);
 

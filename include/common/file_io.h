@@ -56,4 +56,26 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path);
  */
 char *read_text_file(char *path);
 
+
+/**
+ * Writes an LMCX file from a descriptor to a path.
+ * @see lmcx_file_descriptor_st
+ *
+ * @param lmcx       The lmcx to write
+ * @param path       The path to write the file to
+ * @param overwrite  Whether to overwrite the file if it exists
+ * @return           The result of writing the file
+ */
+write_status_et write_lmcx_file(lmcx_file_descriptor_st *lmcx, char *path, int overwrite);
+
+/**
+ * Writes a text file from a string to a path.
+ *
+ * @param data       The data to write
+ * @param path       The path to write the file to
+ * @param overwrite  Whether to overwrite the file if it exists
+ * @return           The result of writing the file
+ */
+write_status_et write_text_file(char *data, char *path, int overwrite);
+
 #endif //LMVM_FILE_IO_H

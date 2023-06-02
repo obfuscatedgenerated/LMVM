@@ -2,6 +2,7 @@
 #include "assembler/validator.h"
 #include "assembler/execgen.h"
 #include "common/executable_props.h"
+#include "common/file_io.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -105,11 +106,20 @@ int main(int argc, char **argv) {
         current = next;
     }
 
-    // print the executable as a test
-    puts("Executable:");
-    for (size_t i = 0; i < EXECUTABLE_SIZE - 1; i++) {
-        printf("%zu: %u\n", i, executable[i]);
-    }
+    // construct lmcx descriptor
+    lmcx_file_descriptor_st *descriptor = malloc(sizeof(lmcx_file_descriptor_st));
+    descriptor->data = executable;
+
+    // TODO: trim executable size (remove trailing 0s)
+    descriptor->data_size = EXECUTABLE_SIZE;
+
+    // don't enable extended features
+    descriptor->ext_version[0] = 0;
+    descriptor->ext_version[1] = 0;
+    descriptor->ext_version[2] = 0;
+
+    // save the executable
+    write_lmcx_file(descriptor, "test.lmc", 1);
 
     return 0;
 }
