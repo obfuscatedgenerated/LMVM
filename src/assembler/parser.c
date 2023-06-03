@@ -61,7 +61,14 @@ label_validation_result_et validate_label_name(char *label, label_doubly_ll_node
 void push_known_label(char *label, label_doubly_ll_node_st **known_labels_current) {
     // allocate memory for the new node
     label_doubly_ll_node_st *new_node = malloc(sizeof(label_doubly_ll_node_st));
-    new_node->label = label;
+
+    // copy label, or else reference to label will be lost when tokens are freed
+    size_t label_len = strlen(label) + 1;
+    char *label_copy = malloc(label_len);
+    memcpy(label_copy, label, label_len);
+
+    new_node->label = label_copy;
+
     new_node->next = NULL;
     new_node->previous = *known_labels_current;
 

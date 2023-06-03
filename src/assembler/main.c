@@ -241,8 +241,20 @@ int main(int argc, char **argv) {
     token_ll_node_st *current = tokens_head;
     while (current != NULL) {
         token_ll_node_st *next = current->next;
+
+        if (current->token->mnemonic != NULL) {
+            free(current->token->mnemonic);
+        }
+
+        if (current->token->operand != NULL) {
+            free(current->token->operand);
+        }
+
+        if (current->token->label != NULL) {
+            free(current->token->label);
+        }
+
         free(current->token);
-        // TODO; may need to free each field of token, but it seems to crash when i do that sometimes
         free(current);
         current = next;
     }

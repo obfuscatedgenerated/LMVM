@@ -67,6 +67,8 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                 uppercase_token[i] = (char) toupper(uppercase_token[i]);
             }
 
+            int dont_free_uppercase_token = 0;
+
             for (size_t mnemonic_idx = 0; mnemonic_idx < 9; mnemonic_idx++) {
                 if (strcmp(uppercase_token, mnemonics[mnemonic_idx]) == 0) {
                     // mnemonic found
@@ -99,8 +101,13 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
                     // set the mnemonic
                     mnemonic = uppercase_token;
+                    dont_free_uppercase_token = 1;
                     break;
                 }
+            }
+
+            if (!dont_free_uppercase_token) {
+                free(uppercase_token);
             }
         } else {
             // if an operand has already been found, put error
