@@ -173,6 +173,8 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    puts("Assembling...");
+
     // lex and validate the code
     token_ll_node_st *tokens_head = lex(code_buffer);
     if (validate(tokens_head) != 0) {
@@ -206,6 +208,8 @@ int main(int argc, char **argv) {
 
     // save the executable
     write_lmcx_file(descriptor, outfile_path, 1);
+
+    puts("Successfully assembled executable.");
 
     free(code_buffer);
     free(descriptor);
