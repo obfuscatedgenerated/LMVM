@@ -52,7 +52,7 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
         } else if (strcmp(mnemonic, "OUT") == 0) {
             executable[index] = LMC_IO_OP_OUT;
         } else if (strcmp(mnemonic, "HLT") == 0) {
-            executable[index] = LMC_IO_OP_HLT;
+            executable[index] = OP_LMC_HLT;
         } else {
             char *operand_str = current->token->operand;
             size_t operand_value;
