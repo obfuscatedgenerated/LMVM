@@ -1,4 +1,5 @@
 include(scripts/DetectArch.cmake)
+target_architecture(ARCH)
 
 # use findnsis
 include(scripts/FindNSIS.cmake)
