@@ -1,8 +1,8 @@
-include(scripts/DetectArch.cmake)
+include(scripts/cmake_modules/DetectArch.cmake)
 target_architecture(ARCH)
 
 # use findnsis
-include(scripts/FindNSIS.cmake)
+include(scripts/cmake_modules/FindNSIS.cmake)
 if (NSIS_FOUND)
     MESSAGE(STATUS "NSIS found")
     set(CPACK_GENERATOR NSIS)
@@ -58,15 +58,11 @@ string(REPLACE "/" "\\\\" CMAKE_SOURCE_WINDIR ${CMAKE_SOURCE_DIR})
 
 # associate file extensions
 set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS
-   "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\FileAssociation.nsh")
+   "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\nsis_modules\\FileAssociation.nsh")
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
-        "${RegisterExtension} \"$INSTDIR\\bin\\LMVM.exe\" \".lmc\" \"Compiled Little Man Computer Bytecode\"\n
-        ${RegisterExtension} \"$INSTDIR\\bin\\LMASM.exe\" \".lmasm\" \"Little Man Computer Assembly\"\n
-    ${RefreshShellIcons}")
+        "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\reg_associations.nsh")
 set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
-        "${UnRegisterExtension} \".lmvm\"\n
-        ${UnRegisterExtension} \".lmasm\"\n
-    ${RefreshShellIcons}")
-
+        "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\unreg_associations.nsh")
 
 include(CPack)
+
