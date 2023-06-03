@@ -93,7 +93,7 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
             }
         }
 
-        // if the token has a label, parse_tokens it
+        // if the token has a label, validate it
         if (current->token->label != NULL) {
             // check the label is valid
             int label_validation_result = validate_label_name(current->token->label, known_labels_current);

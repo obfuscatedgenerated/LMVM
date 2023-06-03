@@ -18,12 +18,14 @@ const unsigned short int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSI
 
 #define VERSION_STRING "\nLMASM v%u.%u.%u\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
 
-static int debug_mode = 0;
-static int strict_mode = 0;
-static int no_overwrite_mode = 0;
+static int debug_mode;
+static int strict_mode;
+static int no_overwrite_mode;
 
 static char *infile_path = NULL;
 static char *outfile_path = NULL;
+
+FILE *debugout = NULL;
 
 #define USAGE_STRING "%s [-h | --help] INFILE [-o | --output OUTFILE] [optional-flags]\n"
 #define OPTIONS "-ho:kvdsx"
@@ -73,20 +75,42 @@ void parse_args(int argc, char **argv) {
                 freopen("/dev/null", "w", stdout);
                 freopen("/dev/null", "w", stderr);
 #endif
-
                 break;
             case 1:
                 infile_path = optarg;
                 break;
-            default:
+            case 'd':
+                // flag not set if using short form
+                debug_mode = 1;
+                break;
+            case 's':
+                // flag not set if using short form
+                strict_mode = 1;
+                break;
+            case 'k':
+                // flag not set if using short form
+                no_overwrite_mode = 1;
+                break;
+            case '?': case ':': default:
                 printf(USAGE_STRING, argv[0]);
                 exit(1);
         }
     }
+
+    // create custom stream around stdout for debug, going to null if debug mode is disabled
+    if (debug_mode) {
+        debugout = stdout;
+    } else {
+#ifdef _WIN32
+        debugout = fopen("NUL", "w");
+#else
+        debugout = fopen("/dev/null", "w");
+#endif
+    }
 }
 
 void resolve_output_path() {
-    // parse_tokens the output file if specified
+    // validate the output file if specified
     if (outfile_path != NULL) {
         // check if the output file is a directory
         if (is_dir(outfile_path)) {
@@ -154,6 +178,7 @@ int main(int argc, char **argv) {
     parse_args(argc, argv);
 
     // check for input file
+    fputs("DEBUG: Input file check\n", debugout);
     if (infile_path == NULL) {
         fputs("No input file specified\n", stderr);
         fprintf(stderr, "\nUsage: ");
@@ -173,6 +198,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    fputs("DEBUG: Resolve output path\n", debugout);
     resolve_output_path();
 
     printf("Input file: %s\n", infile_path);
@@ -180,6 +206,7 @@ int main(int argc, char **argv) {
     puts("Preparing to assemble...");
 
     // read the file into the code buffer
+    fputs("DEBUG: Read input file\n", debugout);
     char *code_buffer = read_text_file(infile_path);
 
     if (code_buffer == NULL) {
@@ -189,19 +216,28 @@ int main(int argc, char **argv) {
 
     puts("Assembling...");
 
-    // lex and parse_tokens the code
+    // lex and parse the code
+    fputs("DEBUG: Lex tokens\n", debugout);
     token_ll_node_st *tokens_head = lex(code_buffer);
+    if (tokens_head == NULL) {
+        return 1;
+    }
+
+    fputs("DEBUG: Parse tokens\n", debugout);
     kv_dict *labels_to_addresses = parse_tokens(tokens_head);
     if (labels_to_addresses == NULL) {
         return 1;
     }
 
+    fputs("DEBUG: Free code buffer\n", debugout);
     free(code_buffer);
 
     // generate the executable
+    fputs("DEBUG: Generate executable\n", debugout);
     unsigned short int *executable = generate_executable(tokens_head, labels_to_addresses);
 
     // free the tokens
+    fputs("DEBUG: Free tokens\n", debugout);
     token_ll_node_st *current = tokens_head;
     while (current != NULL) {
         token_ll_node_st *next = current->next;
@@ -211,11 +247,13 @@ int main(int argc, char **argv) {
         current = next;
     }
 
+    fputs("DEBUG: Check executable was built\n", debugout);
     if (executable == NULL) {
         return 1;
     }
 
     // construct lmcx descriptor
+    fputs("DEBUG: Construct LMCX descriptor\n", debugout);
     lmcx_file_descriptor_st *descriptor = malloc(sizeof(lmcx_file_descriptor_st));
     descriptor->data = executable;
 
@@ -228,8 +266,12 @@ int main(int argc, char **argv) {
     descriptor->ext_version[2] = 0;
 
     // save the executable
+    fputs("DEBUG: Write executable to file\n", debugout);
     write_lmcx_file(descriptor, outfile_path, 1);
+
+    fputs("DEBUG: Free executable\n", debugout);
     free(executable);
+    fputs("DEBUG: Free descriptor\n", debugout);
     free(descriptor);
 
     puts("Successfully assembled executable.");
