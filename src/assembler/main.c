@@ -274,6 +274,7 @@ int main(int argc, char **argv) {
     descriptor->data = executable;
 
     // TODO: trim executable size (remove trailing 0s)
+    // for this ^^ we'd need to check what addresses are used. we can't eliminate 0s that are used by DATs (might be a cell simply set to 0)
     descriptor->data_size = EXECUTABLE_SIZE;
 
     // don't enable extended features
