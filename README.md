@@ -18,6 +18,7 @@
 | 1xx  | `ADD`    | Add                          |
 | 2xx  | `SUB`    | Subtract                     |
 | 3xx  | `STA`    | Store into address           |
+| 4xx  |          | Unused                       |
 | 5xx  | `LDA`    | Load from address            |
 | 6xx  | `BRA`    | Branch (always)              |
 | 7xx  | `BRZ`    | Branch if zero               |

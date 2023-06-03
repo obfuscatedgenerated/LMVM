@@ -1,5 +1,5 @@
 #include "assembler/lexer.h"
-#include "assembler/validator.h"
+#include "assembler/parser.h"
 #include "assembler/execgen.h"
 #include "common/executable_props.h"
 #include "common/file_io.h"
@@ -72,7 +72,7 @@ void parse_args(int argc, char **argv) {
 }
 
 void resolve_output_path() {
-    // validate the output file if specified
+    // parse_tokens the output file if specified
     if (outfile_path != NULL) {
         // check if the output file is a directory
         if (is_dir(outfile_path)) {
@@ -175,14 +175,17 @@ int main(int argc, char **argv) {
 
     puts("Assembling...");
 
-    // lex and validate the code
+    // lex and parse_tokens the code
     token_ll_node_st *tokens_head = lex(code_buffer);
-    if (validate(tokens_head) != 0) {
+    kv_dict *labels_to_addresses = parse_tokens(tokens_head);
+    if (labels_to_addresses == NULL) {
         return 1;
     }
 
+    free(code_buffer);
+
     // generate the executable
-    unsigned int *executable = generate_executable(tokens_head);
+    unsigned int *executable = generate_executable(tokens_head, labels_to_addresses);
 
     // free the tokens
     token_ll_node_st *current = tokens_head;
@@ -192,6 +195,10 @@ int main(int argc, char **argv) {
         // TODO; may need to free each field of token, but it seems to crash when i do that sometimes
         free(current);
         current = next;
+    }
+
+    if (executable == NULL) {
+        return 1;
     }
 
     // construct lmcx descriptor
@@ -208,11 +215,10 @@ int main(int argc, char **argv) {
 
     // save the executable
     write_lmcx_file(descriptor, outfile_path, 1);
+    free(executable);
+    free(descriptor);
 
     puts("Successfully assembled executable.");
-
-    free(code_buffer);
-    free(descriptor);
 
     return 0;
 }

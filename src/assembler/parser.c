@@ -1,14 +1,15 @@
 // the assembler doesn't need to have a real parser, so this module just validates the label and operand of each instruction.
 
-#include "assembler/validator.h"
+#include "assembler/parser.h"
 #include "assembler/lexer.h"
+#include "common/hashtable/kv_dict.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 
-// validate that INP, OUT, and HLT have no operands
+// parse_tokens that INP, OUT, and HLT have no operands
 int validate_inp_out_hlt(token_ll_node_st *tokens_head) {
     token_ll_node_st *current = tokens_head;
     size_t line_idx = 1;
@@ -70,13 +71,16 @@ void push_known_label(char *label, label_doubly_ll_node_st **known_labels_curren
 }
 
 
-// validates every label in the tokens exists and is used properly
-int validate_labels(token_ll_node_st *tokens_head) {
+// validates every label in the tokens exists and is used properly, as well as building and returning a hash table of label to memory address
+kv_dict *parse_labels(token_ll_node_st *tokens_head) {
     // prepare a linked list to store the known labels
     label_doubly_ll_node_st *known_labels_head = NULL;
     label_doubly_ll_node_st **known_labels_current = &known_labels_head;
 
-    size_t line_idx = 1;
+    // prepare the hash table to store the label to memory address mapping
+    kv_dict *label_to_address_dict = new_dict();
+
+    size_t mem_idx = 0;
     token_ll_node_st *current = tokens_head;
 
     // iterate through the tokens to verify each label name is valid
@@ -84,30 +88,37 @@ int validate_labels(token_ll_node_st *tokens_head) {
         // DATs must have a label
         if (strcmp(current->token->mnemonic, "DAT") == 0) {
             if (current->token->label == NULL) {
-                fprintf(stderr, "Error: DAT near line %zu must have a label. Line has mnemonic: %s\n", line_idx, current->token->mnemonic);
-                return 1;
+                fprintf(stderr, "Error: DAT on instruction %zu must have a label. Line has mnemonic: %s\n", mem_idx + 1, current->token->mnemonic);
+                return NULL;
             }
         }
 
-        // if the token has a label, validate it
+        // if the token has a label, parse_tokens it
         if (current->token->label != NULL) {
             // check the label is valid
             int label_validation_result = validate_label_name(current->token->label, known_labels_current);
             if (label_validation_result != LABEL_VALIDATION_RESULT_OK_DOESNT_EXIST) {
-                fprintf(stderr, "Error: label \"%s\" near line %zu is invalid or already exists. Line has mnemonic: %s\n", current->token->label, line_idx, current->token->mnemonic);
-                return 1;
+                fprintf(stderr, "Error: label \"%s\" on instruction %zu is invalid or already exists. Line has mnemonic: %s\n", current->token->label, mem_idx + 1, current->token->mnemonic);
+                return NULL;
             }
 
             // add the label to the known labels
             push_known_label(current->token->label, known_labels_current);
+
+            // push the label and memory address (of the instruction) to the hash table
+            size_t *heap_mem_idx = malloc(sizeof(size_t));
+            *heap_mem_idx = mem_idx;
+            set_item(label_to_address_dict, current->token->label, strlen(current->token->label) + 1, heap_mem_idx);
+            // TODO: print below in debug mode only
+            //printf("Added label %s to address %zu\n", current->token->label, mem_idx);
         }
 
-        line_idx++;
+        mem_idx++;
         current = current->next;
     }
 
 
-    line_idx = 1;
+    mem_idx = 0;
     current = tokens_head;
 
     // after validating and loading in all the label names, check that any label operands refer to a valid label
@@ -117,16 +128,16 @@ int validate_labels(token_ll_node_st *tokens_head) {
         if (current->token->operand != NULL) {
             int operand_validation_result = validate_label_name(current->token->operand, known_labels_current);
             if (operand_validation_result == LABEL_VALIDATION_RESULT_OK_DOESNT_EXIST) {
-                fprintf(stderr, "Error: label \"%s\" near line %zu doesn't exist. Line has mnemonic: %s\n", current->token->operand, line_idx, current->token->mnemonic);
-                return 1;
+                fprintf(stderr, "Error: label \"%s\" on instruction %zu doesn't exist. Line has mnemonic: %s\n", current->token->operand, mem_idx + 1, current->token->mnemonic);
+                return NULL;
             }
         }
 
-        line_idx++;
+        mem_idx++;
         current = current->next;
     }
 
-    return 0;
+    return label_to_address_dict;
 }
 
 // all numerical operands must be between 0 and 99
@@ -172,18 +183,19 @@ int validate_numerical_operands(token_ll_node_st *tokens_head) {
 }
 
 
-int validate(token_ll_node_st *tokens_head) {
+kv_dict *parse_tokens(token_ll_node_st *tokens_head) {
     if (validate_inp_out_hlt(tokens_head) != 0) {
-        return 1;
+        return NULL;
     }
 
-    if (validate_labels(tokens_head) != 0) {
-        return 1;
+    kv_dict *label_to_address_dict = parse_labels(tokens_head);
+    if (label_to_address_dict == NULL) {
+        return NULL;
     }
 
     if (validate_numerical_operands(tokens_head) != 0) {
-        return 1;
+        return NULL;
     }
 
-    return 0;
+    return label_to_address_dict;
 }

@@ -1,7 +1,8 @@
-#ifndef LMVM_VALIDATOR_H
-#define LMVM_VALIDATOR_H
+#ifndef LMVM_PARSER_H
+#define LMVM_PARSER_H
 
 #include "lexer.h"
+#include "common/hashtable/kv_dict.h"
 
 /**
  * Represents a node in a doubly linked list of labels.
@@ -38,11 +39,20 @@ typedef enum label_validation_result_e label_validation_result_et;
 
 
 /**
- * Runs all validation checks on the given list of tokens.
+ * Validates given label name.
  *
- * @param tokens  The head of the list of tokens
- * @return        0 if valid, 1 if invalid
+ * @param label The label name to validate
+ * @param known_labels_current Doubly linked list of known labels, or NULL to disable checking for duplicates
+ * @return A label_validation_result_et representing the result of the validation
  */
-int validate(token_ll_node_st *tokens);
+label_validation_result_et validate_label_name(char *label, label_doubly_ll_node_st **known_labels_current);
 
-#endif //LMVM_VALIDATOR_H
+/**
+ * Runs all validation checks on the given list of tokens, and returns a hash table of labels to memory addresses.
+ *
+ * @param tokens_head  The head of the list of tokens
+ * @return             A hash table of labels to memory addresses, or NULL if validation failed
+ */
+kv_dict *parse_tokens(token_ll_node_st *tokens_head);
+
+#endif //LMVM_PARSER_H
