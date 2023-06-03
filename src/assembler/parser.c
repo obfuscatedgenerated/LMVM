@@ -32,7 +32,7 @@ int validate_inp_out_hlt(token_ll_node_st *tokens_head) {
 
 // checks it consists only of letters, and hasn't been used before
 // returns 0 if valid, 1 if invalid, 2 if already used
-label_validation_result_et validate_label_name(char *label, label_doubly_ll_node_st **known_labels_current) {
+label_validation_result_et validate_label_name(char *label, label_doubly_ll_node_st *known_labels_current) {
     // check the label consists only of letters
     char *current_char = label;
     while (*current_char != '\0') {
@@ -48,12 +48,11 @@ label_validation_result_et validate_label_name(char *label, label_doubly_ll_node
 
     // search backwards through the known labels to check the label hasn't been used before
     // don't affect the value of known_labels_current for the user of the function
-    label_doubly_ll_node_st *known_labels_current_copy = *known_labels_current;
-    while (known_labels_current_copy != NULL) {
-        if (strcmp(known_labels_current_copy->label, label) == 0) {
+    while (known_labels_current != NULL) {
+        if (strcmp(known_labels_current->label, label) == 0) {
             return LABEL_VALIDATION_RESULT_OK_EXISTS;
         }
-        known_labels_current_copy = known_labels_current_copy->previous;
+        known_labels_current = known_labels_current->previous;
     }
 
     return LABEL_VALIDATION_RESULT_OK_DOESNT_EXIST;
@@ -78,8 +77,8 @@ void push_known_label(char *label, label_doubly_ll_node_st **known_labels_curren
 // validates every label in the tokens exists and is used properly, as well as building and returning a hash table of label to memory address
 kv_dict *parse_labels(token_ll_node_st *tokens_head) {
     // prepare a linked list to store the known labels
-    label_doubly_ll_node_st *known_labels_head = NULL;
-    label_doubly_ll_node_st **known_labels_current = &known_labels_head;
+    // TODO: does the LL need to be doubly, it's only ever read going backwards
+    label_doubly_ll_node_st *known_labels_current = NULL;
 
     // prepare the hash table to store the label to memory address mapping
     kv_dict *label_to_address_dict = new_dict();
@@ -107,7 +106,7 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
             }
 
             // add the label to the known labels
-            push_known_label(current->token->label, known_labels_current);
+            push_known_label(current->token->label, &known_labels_current);
 
             // push the label and memory address (of the instruction) to the hash table
             size_t *heap_mem_idx = malloc(sizeof(size_t));
@@ -142,12 +141,13 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
     }
 
     // free the known labels linked list
-    known_labels_current = &known_labels_head;
-    while (*known_labels_current != NULL) {
-        label_doubly_ll_node_st *next = (*known_labels_current)->next;
-        free((*known_labels_current)->label);
-        free(*known_labels_current);
-        *known_labels_current = next;
+    while (known_labels_current != NULL) {
+        label_doubly_ll_node_st *next = known_labels_current->previous;
+        // TODO: debug print below
+        //printf("Freeing label %s\n", known_labels_current->label);
+        free(known_labels_current->label);
+        free(known_labels_current);
+        known_labels_current = next;
     }
 
     return label_to_address_dict;
@@ -182,7 +182,7 @@ int validate_numerical_operands(token_ll_node_st *tokens_head) {
         }
 
         // if the operand is numerical, check it is between 0 and 99
-        int value = strtol(current->token->operand, NULL, 10);
+        int value = (int) strtol(current->token->operand, NULL, 10);
         if (value < 0 || value > 99) {
             fprintf(stderr, "Error: operand \"%s\" near line %zu is not between 0 and 99. Line has mnemonic: %s\n", current->token->operand, line_idx, current->token->mnemonic);
             return 1;
