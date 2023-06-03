@@ -59,15 +59,15 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     for (size_t idx = 0; idx < token_idx; idx++) {
         // check for a mnemonic
         if (idx <= operand_idx) {
-            for (size_t mnemonic_idx = 0; mnemonic_idx < 9; mnemonic_idx++) {
-                // convert token to uppercase (case insensitive mnemonic)
-                size_t token_len = strlen(tokens[idx]);
-                char *uppercase_token = malloc(token_len + 1);
-                memcpy(uppercase_token, tokens[idx], token_len + 1);
-                for (size_t i = 0; i < token_len; i++) {
-                    uppercase_token[i] = (char) toupper(uppercase_token[i]);
-                }
+            // convert token to uppercase (case insensitive mnemonic)
+            size_t token_len = strlen(tokens[idx]);
+            char *uppercase_token = malloc(token_len + 1);
+            memcpy(uppercase_token, tokens[idx], token_len + 1);
+            for (size_t i = 0; i < token_len; i++) {
+                uppercase_token[i] = (char) toupper(uppercase_token[i]);
+            }
 
+            for (size_t mnemonic_idx = 0; mnemonic_idx < 9; mnemonic_idx++) {
                 if (strcmp(uppercase_token, mnemonics[mnemonic_idx]) == 0) {
                     // mnemonic found
 
@@ -102,6 +102,8 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                     break;
                 }
             }
+
+            free(uppercase_token);
         } else {
             // if an operand has already been found, put error
             if (operand != NULL) {
