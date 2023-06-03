@@ -102,8 +102,6 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                     break;
                 }
             }
-
-            free(uppercase_token);
         } else {
             // if an operand has already been found, put error
             if (operand != NULL) {

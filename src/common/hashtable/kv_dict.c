@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <stdio.h>
 
 kv_dict *new_dict() {
     kv_dict *dict = malloc(sizeof(kv_dict));

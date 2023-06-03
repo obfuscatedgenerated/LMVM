@@ -111,7 +111,13 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
             // push the label and memory address (of the instruction) to the hash table
             size_t *heap_mem_idx = malloc(sizeof(size_t));
             *heap_mem_idx = mem_idx;
-            set_item(label_to_address_dict, current->token->label, strlen(current->token->label) + 1, heap_mem_idx);
+
+            // copy label, or else reference to label will be lost when tokens are freed
+            size_t label_len = strlen(current->token->label) + 1;
+            char *label_copy = malloc(label_len);
+            memcpy(label_copy, current->token->label, label_len);
+
+            set_item(label_to_address_dict, label_copy, label_len, heap_mem_idx);
             // TODO: print below in debug mode only
             //printf("Added label %s to address %zu\n", current->token->label, mem_idx);
         }

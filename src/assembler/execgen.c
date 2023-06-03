@@ -54,7 +54,7 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
             executable[index] = LMC_HLT;
         } else {
             char *operand_str = current->token->operand;
-            size_t operand_value = 0;
+            size_t operand_value;
 
             if (operand_str == NULL) {
                 fprintf(stderr, "Internal Error: mnemonic \"%s\" has no operand, but validator claimed it does\n", mnemonic);
