@@ -45,15 +45,15 @@ void parse_args(int argc, char **argv) {
             case 'h':
                 puts("\nUsage:");
                 printf(USAGE_STRING, argv[0]);
-                puts("\n-h | --help:    Show this help message and exit");
+                puts("\n-h | --help:               Show this help message and exit");
                 puts("\nRequired positional arguments:");
-                puts("INFILE:           The input entrypoint to assemble");
+                puts("INFILE:                    The input entrypoint to assemble");
                 puts("\nOptional arguments:");
-                puts("-o | --output OUTFILE:  The output file to write the executable to. Defaults to the same file name (with executable extension) in the current directory");
+                puts("-o | --output OUTFILE:     The output file to write the executable to. Defaults to the same file name (with executable extension) in the current directory");
                 puts("-k | --no-overwrite:       Keep the output file if it already exists. Refuses to overwrite.");
-                puts("-v | --version:  Show the version number and license information");
-                puts("-D | --debug:    Enable debug mode");
-                puts("-S | --strict:   Enable strict mode. Warnings are treated as errors");
+                puts("-v | --version:            Show the version number and license information");
+                puts("-D | --debug:              Enable debug mode");
+                puts("-S | --strict:             Enable strict mode. Warnings are treated as errors");
                 puts("");
                 exit(0);
             case 'o':
