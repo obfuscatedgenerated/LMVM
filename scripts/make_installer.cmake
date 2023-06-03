@@ -13,23 +13,28 @@ endif()
 
 # add install target
 install(TARGETS LMVM LMASM DESTINATION bin)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/README.md DESTINATION .)
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/README.html DESTINATION .)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE DESTINATION . RENAME LICENSE.txt)
 
 # TODO: pandoc conversion
 # actually, cmake has some built in conversion, but its not very stylish
 
+# use custom nsis template
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/scripts/nsis_template")
+
 # set package details
 set(CPACK_PACKAGE_NAME "Little Man Virtual Machine")
-set(CPACK_PACKAGE_VENDOR "Ollie (obfuscatedgenerated)")
+set(CPACK_PACKAGE_VENDOR "obfuscatedgenerated")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://ollieg.codes/")
-#set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "LMVM - Little Man Virtual Machine")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 # TODO: use git
 #set(CPACK_PACKAGE_VERSION ${GIT_TAG})
 #set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 #set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 #set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 #set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon.bmp")
-#set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT__SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_EXECUTABLES "LMVM;LMVM" "LMASM;LMASM")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "LMVM")
@@ -38,6 +43,7 @@ set(CPACK_NSIS_MENU_LINKS
         "https://ollieg.codes/;Ollie's Website"
         "/LICENSE.txt;Review License"
         "/README.md;README (markdown)"
+        "/README.html;README (html)"
         "Uninstall.exe;Uninstall LMVM"
         )
 set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
@@ -57,12 +63,9 @@ set(CPACK_NSIS_FINISH_TITLE "LMVM is ready to go!")
 string(REPLACE "/" "\\\\" CMAKE_SOURCE_WINDIR ${CMAKE_SOURCE_DIR})
 
 # associate file extensions
-set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS
-   "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\nsis_modules\\FileAssociation.nsh")
-set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS
-        "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\reg_associations.nsh")
-set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
-        "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\unreg_associations.nsh")
+set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\nsis_modules\\FileAssociation.nsh")
+set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\reg_associations.nsh")
+set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "!include ${CMAKE_SOURCE_WINDIR}\\scripts\\unreg_associations.nsh")
 
 include(CPack)
 
