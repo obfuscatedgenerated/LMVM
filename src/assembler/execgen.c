@@ -2,6 +2,7 @@
 #include "assembler/lexer.h"
 #include "assembler/parser.h"
 #include "common/executable_props.h"
+#include "common/opcodes.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -12,19 +13,19 @@ static int mnemonic_to_prefix(char * mnemonic) {
     //  using yet another if else ladder
     //  I <3<3 C
     if (strcmp(mnemonic, "ADD") == 0) {
-        return LMC_ADD_PREFIX;
+        return OP_LMC_ADD;
     } else if (strcmp(mnemonic, "SUB") == 0) {
-        return LMC_SUB_PREFIX;
+        return OP_LMC_SUB;
     } else if (strcmp(mnemonic, "STA") == 0) {
-        return LMC_STA_PREFIX;
+        return OP_LMC_STA;
     } else if (strcmp(mnemonic, "LDA") == 0) {
-        return LMC_LDA_PREFIX;
+        return OP_LMC_LDA;
     } else if (strcmp(mnemonic, "BRA") == 0) {
-        return LMC_BRA_PREFIX;
+        return OP_LMC_BRA;
     } else if (strcmp(mnemonic, "BRZ") == 0) {
-        return LMC_BRZ_PREFIX;
+        return OP_LMC_BRZ;
     } else if (strcmp(mnemonic, "BRP") == 0) {
-        return LMC_BRP_PREFIX;
+        return OP_LMC_BRP;
     } else {
         return -1;
     }
@@ -47,11 +48,11 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
         // we could do some overengineered hash table, but that seems bloated and pointless
         // parse all mnemonics that don't have operands
         if (strcmp(mnemonic, "INP") == 0) {
-            executable[index] = LMC_INP;
+            executable[index] = LMC_IO_OP_INP;
         } else if (strcmp(mnemonic, "OUT") == 0) {
-            executable[index] = LMC_OUT;
+            executable[index] = LMC_IO_OP_OUT;
         } else if (strcmp(mnemonic, "HLT") == 0) {
-            executable[index] = LMC_HLT;
+            executable[index] = LMC_IO_OP_HLT;
         } else {
             char *operand_str = current->token->operand;
             size_t operand_value;
