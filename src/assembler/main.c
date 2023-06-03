@@ -11,7 +11,10 @@
 #include <dirent.h>
 #include <libgen.h>
 
-const unsigned int VERSION[3] = {0, 0, 1};
+#define MAJOR_VERSION 0
+#define MINOR_VERSION 0
+#define PATCH_VERSION 1
+const unsigned int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
 
 #define VERSION_STRING "\nLMASM v%u.%u.%u\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
 
