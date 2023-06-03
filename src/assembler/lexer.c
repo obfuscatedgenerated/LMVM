@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
+#include <ctype.h>
 
 regex_t line_whitespace_regex; // global regex
 
@@ -65,7 +66,15 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
         // check for a mnemonic
         if (idx <= operand_idx) {
             for (size_t mnemonic_idx = 0; mnemonic_idx < 9; mnemonic_idx++) {
-                if (strcmp(tokens[idx], mnemonics[mnemonic_idx]) == 0) {
+                // convert token to uppercase (case insensitive mnemonic)
+                size_t token_len = strlen(tokens[idx]);
+                char *uppercase_token = malloc(token_len + 1);
+                memcpy(uppercase_token, tokens[idx], token_len + 1);
+                for (size_t i = 0; i < token_len; i++) {
+                    uppercase_token[i] = (char) toupper(uppercase_token[i]);
+                }
+
+                if (strcmp(uppercase_token, mnemonics[mnemonic_idx]) == 0) {
                     // mnemonic found
 
                     // if a mnemonic has already been found, put error
@@ -95,7 +104,7 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                     }
 
                     // set the mnemonic
-                    mnemonic = tokens[idx];
+                    mnemonic = uppercase_token;
                     break;
                 }
             }

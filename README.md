@@ -29,6 +29,8 @@
 |      | `DAT`    | Data declaration             |
 |      | `;`      | Comment                      |
 
+All mnemonics are case-insensitive.
+
 <!-- TODO: possibly at OTC: 922 from peter higginson's lmc to the standard mnemonics -->
 
 ### Extended instruction set
