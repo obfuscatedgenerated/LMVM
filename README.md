@@ -61,8 +61,9 @@ Additionally, these arguments are available:
 | -h         | --help           | Display help                                                                                                      |
 | -k         | --no-overwrite   | Keep the output file if it already exists. Refuses to overwrite.                                                  |
 | -v         | --version        | Display version                                                                                                   |
-| -D         | --debug          | Enable debug mode                                                                                                 |
-| -S         | --strict         | Strict mode. Treat warnings as errors.                                                                            |
+| -d         | --debug          | Enable debug mode                                                                                                 |
+| -s         | --strict         | Strict mode. Treat warnings as errors.                                                                            |
+| -x         | --silent         | Silent mode. Don't print anything to stdout or stderr.                                                            |
 
 ### Virtual machine
 
@@ -74,7 +75,8 @@ Additionally, these arguments are available:
 | -l \<file> | --log-file \<file> | Log file                  |
 | -h         | --help             | Display help              |
 | -v         | --version          | Display version           |
-| -D         | --debug            | Enable debug mode         |
+| -d         | --debug            | Enable debug mode         |
+| -x         | --silent           | Silent mode. No output.   |
 
 ## Example programs
 

@@ -26,14 +26,15 @@ static char *infile_path = NULL;
 static char *outfile_path = NULL;
 
 #define USAGE_STRING "%s [-h | --help] INFILE [-o | --output OUTFILE] [optional-flags]\n"
-#define OPTIONS "-ho:kvDS"
+#define OPTIONS "-ho:kvdsx"
 const struct option LONG_OPTIONS[] = {
         {"help",         no_argument,       NULL,         'h'},
         {"output",       required_argument, NULL,         'o'},
         {"no-overwrite", no_argument, &no_overwrite_mode, 'k'},
         {"version",      no_argument,       NULL,         'v'},
-        {"debug",        no_argument, &debug_mode,        'D'},
-        {"strict",       no_argument, &strict_mode,       'S'},
+        {"debug",        no_argument, &debug_mode,        'd'},
+        {"strict",       no_argument, &strict_mode,       's'},
+        {"silent",       no_argument,       NULL,         'x'},
         {NULL,           0,                 NULL,         0}
 };
 
@@ -52,8 +53,9 @@ void parse_args(int argc, char **argv) {
                 puts("-o | --output OUTFILE:     The output file to write the executable to. Defaults to the same file name (with executable extension) in the current directory");
                 puts("-k | --no-overwrite:       Keep the output file if it already exists. Refuses to overwrite.");
                 puts("-v | --version:            Show the version number and license information");
-                puts("-D | --debug:              Enable debug mode");
-                puts("-S | --strict:             Enable strict mode. Warnings are treated as errors");
+                puts("-d | --debug:              Enable debug mode");
+                puts("-s | --strict:             Enable strict mode. Warnings are treated as errors");
+                puts("-x | --silent:             Silent mode. No output is printed to stdout or stderr");
                 puts("");
                 exit(0);
             case 'o':
@@ -61,6 +63,18 @@ void parse_args(int argc, char **argv) {
                 break;
             case 'v':
                 printf(VERSION_STRING, VERSION[0], VERSION[1], VERSION[2]);
+                break;
+            case 'x':
+                // redirect stdout and stderr to nowhere cross-platform
+#ifdef _WIN32
+                freopen("NUL", "w", stdout);
+                freopen("NUL", "w", stderr);
+#else
+                freopen("/dev/null", "w", stdout);
+                freopen("/dev/null", "w", stderr);
+#endif
+
+                break;
             case 1:
                 infile_path = optarg;
                 break;
@@ -154,7 +168,7 @@ int main(int argc, char **argv) {
     }
 
     // check input file exists
-    if(!file_exists_and_accessible(infile_path)) {
+    if (!file_exists_and_accessible(infile_path)) {
         fprintf(stderr, "Input file '%s' does not exist or cannot be opened\n", infile_path);
         exit(1);
     }
