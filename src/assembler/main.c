@@ -14,7 +14,7 @@
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 0
 #define PATCH_VERSION 1
-const unsigned int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
+const unsigned short int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
 
 #define VERSION_STRING "\nLMASM v%u.%u.%u\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
 
@@ -185,7 +185,7 @@ int main(int argc, char **argv) {
     free(code_buffer);
 
     // generate the executable
-    unsigned int *executable = generate_executable(tokens_head, labels_to_addresses);
+    unsigned short int *executable = generate_executable(tokens_head, labels_to_addresses);
 
     // free the tokens
     token_ll_node_st *current = tokens_head;

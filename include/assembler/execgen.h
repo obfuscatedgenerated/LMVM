@@ -11,6 +11,6 @@
  * @param labels_to_addresses  A hash table of labels to memory addresses
  * @return             The values of the executable's cells or NULL if the executable could not be generated
  */
-unsigned int *generate_executable(token_ll_node_st *tokens_head, kv_dict *labels_to_addresses);
+unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *labels_to_addresses);
 
 #endif //LMVM_EXECGEN_H

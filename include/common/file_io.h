@@ -9,9 +9,9 @@
  * @see lmcx_file_descriptor_st
  */
 struct lmcx_file_descriptor_s {
-    unsigned int *data;
+    unsigned short int *data;
     size_t data_size;
-    unsigned int ext_version[3];
+    unsigned short int ext_version[3];
 };
 
 /**

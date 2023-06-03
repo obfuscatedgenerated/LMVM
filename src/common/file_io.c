@@ -6,7 +6,20 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+static int is_little_endian_machine = -1;
+static void detect_little_endian_machine() {
+    if (is_little_endian_machine != -1) {
+        return;
+    }
+
+    const unsigned int x = 1;
+    char *c = (char*) &x;
+    is_little_endian_machine = (int) *c;
+}
+
 lmcx_file_descriptor_st *read_lmcx_file(char *path) {
+    detect_little_endian_machine();
+
     FILE *file = fopen(path, "rb");
 
     if (file == NULL) {
@@ -15,7 +28,7 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
 
     // get the file size
     fseek(file, 0, SEEK_END);
-    unsigned int file_size = ftell(file);
+    size_t file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
     // read enough bytes to get either magic string
@@ -25,20 +38,31 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
 
     // check if the magic string is the extended one
     if (strcmp(read_magic_string, MAGIC_STRING_LMC_EXTENDED) == 0) {
-        // read the version
-        unsigned int version[3];
-        fread(version, sizeof(unsigned int), 3, file);
+        // read the version with correct endianness (file always stored in little endian)
+        unsigned short int version[3];
+        fread(version, sizeof(unsigned short int), 3, file);
+        if (!is_little_endian_machine) {
+            for (int i = 0; i < 3; i++) {
+                version[i] = (version[i] << 8) | (version[i] >> 8);
+            }
+        }
 
-        // read the rest of the file
-        unsigned int *data = malloc(sizeof(unsigned int) * (file_size - max_magic_length - 3 * sizeof(unsigned int)));
-        fread(data, sizeof(unsigned int), file_size - max_magic_length - 3 * sizeof(unsigned int), file);
+        // read the rest of the file with correct endianness (file always stored in little endian)
+        unsigned short int *data = malloc(sizeof(unsigned short int) * (file_size - max_magic_length - 3 * sizeof(unsigned short int)));
+        fread(data, sizeof(unsigned short int), file_size - max_magic_length - 3 * sizeof(unsigned short int), file);
+        if (!is_little_endian_machine) {
+            for (int i = 0; i < file_size - max_magic_length - 3 * sizeof(unsigned short int); i++) {
+                data[i] = (data[i] << 8) | (data[i] >> 8);
+            }
+        }
 
         fclose(file);
+
 
         // create the result
         lmcx_file_descriptor_st *result = malloc(sizeof(lmcx_file_descriptor_st));
         result->data = data;
-        result->data_size = file_size - max_magic_length - 3 * sizeof(unsigned int);
+        result->data_size = file_size - max_magic_length - 3 * sizeof(unsigned short int);
         result->ext_version[0] = version[0];
         result->ext_version[1] = version[1];
         result->ext_version[2] = version[2];
@@ -52,8 +76,8 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
     // check if the magic string is the standard one
     if (strcmp(read_magic_string, MAGIC_STRING_LMC) == 0) {
         // read the rest of the file
-        unsigned int *data = malloc(sizeof(unsigned int) * (file_size - max_magic_length));
-        fread(data, sizeof(unsigned int), file_size - max_magic_length, file);
+        unsigned short int *data = malloc(sizeof(unsigned short int) * (file_size - max_magic_length));
+        fread(data, sizeof(unsigned short int), file_size - max_magic_length, file);
 
         fclose(file);
 
@@ -97,6 +121,8 @@ char *read_text_file(char *path) {
 
 
 write_status_et write_lmcx_file(lmcx_file_descriptor_st *lmcx, char *path, int overwrite) {
+    detect_little_endian_machine();
+
     FILE *file = fopen(path, "rb");
 
     // check if the file exists
@@ -120,13 +146,34 @@ write_status_et write_lmcx_file(lmcx_file_descriptor_st *lmcx, char *path, int o
     // write the magic string
     if (using_lmvm_ext) {
         fwrite(MAGIC_STRING_LMC_EXTENDED, sizeof(char), strlen(MAGIC_STRING_LMC_EXTENDED), file);
-        fwrite(lmcx->ext_version, sizeof(unsigned int), 3, file);
+
+        // write the version with correct endianness (file always stored in little endian)
+        unsigned short int version[3];
+        version[0] = lmcx->ext_version[0];
+        version[1] = lmcx->ext_version[1];
+        version[2] = lmcx->ext_version[2];
+
+        if (!is_little_endian_machine) {
+            for (int i = 0; i < 3; i++) {
+                version[i] = (version[i] << 8) | (version[i] >> 8);
+            }
+        }
+
+        fwrite(lmcx->ext_version, sizeof(unsigned short int), 3, file);
     } else {
         fwrite(MAGIC_STRING_LMC, sizeof(char), strlen(MAGIC_STRING_LMC), file);
     }
 
-    // write the data
-    fwrite(lmcx->data, sizeof(unsigned int), lmcx->data_size, file);
+    // write the data with correct endianness (file always stored in little endian)
+    if (is_little_endian_machine) {
+        fwrite(lmcx->data, sizeof(unsigned short int), lmcx->data_size, file);
+    } else {
+        unsigned short int *data = malloc(sizeof(unsigned short int) * lmcx->data_size);
+        for (int i = 0; i < lmcx->data_size; i++) {
+            data[i] = (lmcx->data[i] << 8) | (lmcx->data[i] >> 8);
+        }
+        fwrite(data, sizeof(unsigned short int), lmcx->data_size, file);
+    }
 
     fclose(file);
 
