@@ -247,9 +247,9 @@ token_ll_node_st *lex(char *code) {
         }
 
         // make a weak copy of the line to prevent affecting strtok
-        char *line_copy = malloc(strlen(line) + 1);
-        // TODO: use safer string copy
-        strcpy(line_copy, line);
+        size_t line_length = strlen(line);
+        char *line_copy = malloc(line_length + 1);
+        memcpy(line_copy, line, line_length + 1);
 
         tagged_lex_result_st res = prepare_and_lex_line(line_copy, line_idx);
 
