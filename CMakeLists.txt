@@ -64,6 +64,16 @@ ENDIF()
 # add LMVM executable
 add_executable(LMVM ${VM_SOURCES} ${COMMON_SOURCES})
 
+# use harsh flags
+if(MSVC)
+    MESSAGE(STATUS "MSVC is not a supported compiler and may fail!")
+    target_compile_options(LMASM PRIVATE /W4 /WX)
+    target_compile_options(LMVM PRIVATE /W4 /WX)
+else()
+    target_compile_options(LMASM PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(LMVM PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
+
 # make installer
 include(scripts/make_installer.cmake)
 

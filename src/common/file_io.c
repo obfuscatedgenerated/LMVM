@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 
 static int is_little_endian_machine = -1;
-static void detect_little_endian_machine() {
+static void detect_little_endian_machine(void) {
     if (is_little_endian_machine != -1) {
         return;
     }
@@ -54,7 +54,7 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
         unsigned short int *data = malloc(sizeof(unsigned short int) * (file_size - max_magic_length - 3 * sizeof(unsigned short int)));
         fread(data, sizeof(unsigned short int), file_size - max_magic_length - 3 * sizeof(unsigned short int), file);
         if (!is_little_endian_machine) {
-            for (int i = 0; i < file_size - max_magic_length - 3 * sizeof(unsigned short int); i++) {
+            for (size_t i = 0; i < file_size - max_magic_length - 3 * sizeof(unsigned short int); i++) {
                 data[i] = (data[i] << 8) | (data[i] >> 8);
             }
         }
@@ -172,7 +172,7 @@ write_status_et write_lmcx_file(lmcx_file_descriptor_st *lmcx, char *path, int o
         fwrite(lmcx->data, sizeof(unsigned short int), lmcx->data_size, file);
     } else {
         unsigned short int *data = malloc(sizeof(unsigned short int) * lmcx->data_size);
-        for (int i = 0; i < lmcx->data_size; i++) {
+        for (size_t i = 0; i < lmcx->data_size; i++) {
             data[i] = (lmcx->data[i] << 8) | (lmcx->data[i] >> 8);
         }
         fwrite(data, sizeof(unsigned short int), lmcx->data_size, file);
