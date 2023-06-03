@@ -66,7 +66,11 @@ void push_known_label(char *label, label_doubly_ll_node_st **known_labels_curren
     new_node->next = NULL;
     new_node->previous = *known_labels_current;
 
-    // update the current node
+    // update the current node to point to the new node
+    if (*known_labels_current != NULL) {
+        (*known_labels_current)->next = new_node;
+    }
+
     *known_labels_current = new_node;
 }
 
@@ -135,6 +139,15 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
 
         mem_idx++;
         current = current->next;
+    }
+
+    // free the known labels linked list
+    known_labels_current = &known_labels_head;
+    while (*known_labels_current != NULL) {
+        label_doubly_ll_node_st *next = (*known_labels_current)->next;
+        free((*known_labels_current)->label);
+        free(*known_labels_current);
+        *known_labels_current = next;
     }
 
     return label_to_address_dict;
