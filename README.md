@@ -66,7 +66,7 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 
 > **Warning** The available memory addresses are 00-99 only. Any address outside of this range will cause an error.
 
-> **Note** In a DAT statement, the operand is an immediate value. It will only fail if the operand is a label. It is the initial value of the variable.
+> **Note** In a DAT statement, the operand is an immediate value. If a label is passed, its address will be used as the value. It is the initial value of the variable.
 
 ### Extended addressing modes
 
@@ -83,7 +83,7 @@ You can enable them by starting the file with `; lmvm-ext <version>`. The latest
 > **Warning** For absolute addressing, expect SEGFAULTS and values too big for the LMC! Additionally, you are limited to addresses 00-99 of the parent computer's memory as with the LMC. There are no real uses for this addressing mode (unless you have some memory-mapped peripherals that are somehow using memory between 00 and 99 🤔), but it's there if you need it.
 
 > **Note** In a DAT statement, the operand will always be an immediate value, no matter how it is written (
-> e.g. `var DAT 5` and `var DAT #5` are the same expression). It will only fail if the operand is a label. It is the initial value of the variable.
+> e.g. `var DAT 5` and `var DAT #5` are the same expression). the operand is an immediate value. If a label is passed, its address will be used as the value. It is the initial value of the variable.
 
 ## Using labels
 
