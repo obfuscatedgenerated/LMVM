@@ -165,6 +165,11 @@ int main(int argc, char **argv) {
     // read the file into the code buffer
     char *code_buffer = read_text_file(infile_path);
 
+    if (code_buffer == NULL) {
+        fprintf(stderr, "Error: Failed to read input file '%s'\n", infile_path);
+        exit(1);
+    }
+
     // lex and validate the code
     token_ll_node_st *tokens_head = lex(code_buffer);
     if (validate(tokens_head) != 0) {
