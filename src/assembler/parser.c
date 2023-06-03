@@ -10,7 +10,7 @@
 
 
 // parse_tokens that INP, OUT, and HLT have no operands
-int validate_inp_out_hlt(token_ll_node_st *tokens_head) {
+static int validate_inp_out_hlt(token_ll_node_st *tokens_head) {
     token_ll_node_st *current = tokens_head;
     size_t line_idx = 1;
 
@@ -58,7 +58,7 @@ label_validation_result_et validate_label_name(char *label, label_doubly_ll_node
     return LABEL_VALIDATION_RESULT_OK_DOESNT_EXIST;
 }
 
-void push_known_label(char *label, label_doubly_ll_node_st **known_labels_current) {
+static void push_known_label(char *label, label_doubly_ll_node_st **known_labels_current) {
     // allocate memory for the new node
     label_doubly_ll_node_st *new_node = malloc(sizeof(label_doubly_ll_node_st));
 
@@ -82,7 +82,7 @@ void push_known_label(char *label, label_doubly_ll_node_st **known_labels_curren
 
 
 // validates every label in the tokens exists and is used properly, as well as building and returning a hash table of label to memory address
-kv_dict *parse_labels(token_ll_node_st *tokens_head) {
+static kv_dict *parse_labels(token_ll_node_st *tokens_head) {
     // prepare a linked list to store the known labels
     // TODO: does the LL need to be doubly, it's only ever read going backwards
     label_doubly_ll_node_st *known_labels_current = NULL;
@@ -167,7 +167,7 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
 }
 
 // all numerical operands must be between 0 and 99
-int validate_numerical_operands(token_ll_node_st *tokens_head) {
+static int validate_numerical_operands(token_ll_node_st *tokens_head) {
     token_ll_node_st *current = tokens_head;
     size_t line_idx = 1;
 

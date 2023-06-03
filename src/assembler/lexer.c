@@ -6,10 +6,10 @@
 #include <regex.h>
 #include <ctype.h>
 
-regex_t line_whitespace_regex; // global regex
+static regex_t line_whitespace_regex; // global regex
 
 // define mnemonics
-char *mnemonics[] = {
+static char *mnemonics[] = {
         "LDA",
         "STA",
         "ADD",
@@ -22,7 +22,7 @@ char *mnemonics[] = {
 };
 
 // lex the line
-tagged_lex_result_st lex_line(char *line, size_t line_idx) {
+static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     // allocate array of tokens (up to 3)
     char *tokens[3];
 
@@ -146,7 +146,7 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 }
 
 // prepare and lex a single line of code
-tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
+static tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
     // execute the regex on the line (assured to be compiled at this point)
     int regex_result = regexec(&line_whitespace_regex, line, 0, NULL, 0);
 
@@ -206,7 +206,7 @@ tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
 
 
 // add to the linked list of tokens
-void push_to_tokens(token_ll_node_st **current, token_st *token) {
+static void push_to_tokens(token_ll_node_st **current, token_st *token) {
     // create a new node
     token_ll_node_st *new_node = malloc(sizeof(token_ll_node_st));
     new_node->token = token;

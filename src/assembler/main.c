@@ -14,7 +14,7 @@
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 0
 #define PATCH_VERSION 1
-const unsigned short int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
+static const unsigned short int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
 
 #define VERSION_STRING "\nLMASM v%u.%u.%u\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
 
@@ -25,11 +25,11 @@ static int no_overwrite_mode;
 static char *infile_path = NULL;
 static char *outfile_path = NULL;
 
-FILE *debugout = NULL;
+static FILE *debugout = NULL;
 
 #define USAGE_STRING "%s [-h | --help] INFILE [-o | --output OUTFILE] [optional-flags]\n"
 #define OPTIONS "-ho:kvdsx"
-const struct option LONG_OPTIONS[] = {
+static const struct option LONG_OPTIONS[] = {
         {"help",         no_argument,       NULL,         'h'},
         {"output",       required_argument, NULL,         'o'},
         {"no-overwrite", no_argument, &no_overwrite_mode, 'k'},
@@ -41,7 +41,7 @@ const struct option LONG_OPTIONS[] = {
 };
 
 
-void parse_args(int argc, char **argv) {
+static void parse_args(int argc, char **argv) {
     int c;
     while ((c = getopt_long(argc, argv, OPTIONS, LONG_OPTIONS, NULL)) != -1) {
         switch (c) {
@@ -109,7 +109,7 @@ void parse_args(int argc, char **argv) {
     }
 }
 
-void resolve_output_path() {
+static void resolve_output_path(void) {
     // validate the output file if specified
     if (outfile_path != NULL) {
         // check if the output file is a directory

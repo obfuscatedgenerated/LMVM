@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 // convert mnemonic to prefix, excluding DAT and non-operand mnemonics
-int mnemonic_to_prefix(char * mnemonic) {
+static int mnemonic_to_prefix(char * mnemonic) {
     //  using yet another if else ladder
     //  I <3<3 C
     if (strcmp(mnemonic, "ADD") == 0) {
