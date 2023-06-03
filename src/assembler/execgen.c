@@ -2,29 +2,31 @@
 #include "assembler/lexer.h"
 #include "assembler/parser.h"
 #include "common/executable_props.h"
+#include "common/opcodes.h"
+#include "common/checked_alloc.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 // convert mnemonic to prefix, excluding DAT and non-operand mnemonics
-int mnemonic_to_prefix(char * mnemonic) {
+static int mnemonic_to_prefix(char * mnemonic) {
     //  using yet another if else ladder
     //  I <3<3 C
     if (strcmp(mnemonic, "ADD") == 0) {
-        return LMC_ADD_PREFIX;
+        return OP_LMC_ADD;
     } else if (strcmp(mnemonic, "SUB") == 0) {
-        return LMC_SUB_PREFIX;
+        return OP_LMC_SUB;
     } else if (strcmp(mnemonic, "STA") == 0) {
-        return LMC_STA_PREFIX;
+        return OP_LMC_STA;
     } else if (strcmp(mnemonic, "LDA") == 0) {
-        return LMC_LDA_PREFIX;
+        return OP_LMC_LDA;
     } else if (strcmp(mnemonic, "BRA") == 0) {
-        return LMC_BRA_PREFIX;
+        return OP_LMC_BRA;
     } else if (strcmp(mnemonic, "BRZ") == 0) {
-        return LMC_BRZ_PREFIX;
+        return OP_LMC_BRZ;
     } else if (strcmp(mnemonic, "BRP") == 0) {
-        return LMC_BRP_PREFIX;
+        return OP_LMC_BRP;
     } else {
         return -1;
     }
@@ -34,12 +36,17 @@ int mnemonic_to_prefix(char * mnemonic) {
 // classic LMC has 100 memory addresses, so the executable is 100 unsigned integers
 // we may expand this when extended LMC is implemented
 unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *labels_to_addresses) {
-    unsigned short int *executable = calloc(EXECUTABLE_SIZE, sizeof(unsigned int));
+    unsigned short int *executable = checked_calloc(EXECUTABLE_SIZE, sizeof(unsigned short int));
 
     // convert each token into the machine code
     token_ll_node_st *current = tokens_head;
     size_t index = 0;
-    while (current != NULL && index < EXECUTABLE_SIZE - 1) {
+    while (current != NULL) {
+        if (index >= EXECUTABLE_SIZE) {
+            fprintf(stderr, "Internal Error: execgen passed too many instruction tokens\n");
+            return NULL;
+        }
+
         char *mnemonic = current->token->mnemonic;
 
         // c doesn't have a switch statement for strings, so we have to use if else ladders
@@ -47,14 +54,14 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
         // we could do some overengineered hash table, but that seems bloated and pointless
         // parse all mnemonics that don't have operands
         if (strcmp(mnemonic, "INP") == 0) {
-            executable[index] = LMC_INP;
+            executable[index] = OP_LMC_IO_OP_INP;
         } else if (strcmp(mnemonic, "OUT") == 0) {
-            executable[index] = LMC_OUT;
+            executable[index] = OP_LMC_IO_OP_OUT;
         } else if (strcmp(mnemonic, "HLT") == 0) {
-            executable[index] = LMC_HLT;
+            executable[index] = OP_LMC_HLT;
         } else {
             char *operand_str = current->token->operand;
-            size_t operand_value = 0;
+            size_t operand_value;
 
             if (operand_str == NULL) {
                 fprintf(stderr, "Internal Error: mnemonic \"%s\" has no operand, but validator claimed it does\n", mnemonic);
@@ -82,14 +89,17 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
             // TODO: print below in debug mode only
             //printf("string operand: %s value: %zu\n", operand_str, operand_value);
 
-            // check operand is in range
-            if (operand_value > 99) {
-                fprintf(stderr, "Internal Error: operand \"%s\" is greater than 99, but validator allowed it\n", operand_str);
+            int is_dat = strcmp(mnemonic, "DAT") == 0;
+
+            // DATs can go up to 999, otherwise 99
+            unsigned int max_operand_value = is_dat ? 999 : 99;
+            if (operand_value > max_operand_value) {
+                fprintf(stderr, "Internal Error: operand \"%s\" is larger than %u, but validator allowed it\n", operand_str, max_operand_value);
                 return NULL;
             }
 
             // if the mnemonic is DAT, simply write the operand value to the executable
-            if (strcmp(mnemonic, "DAT") == 0) {
+            if (is_dat) {
                 executable[index] = operand_value;
 
                 index++;
@@ -106,7 +116,7 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
             }
 
             // write the instruction to the executable
-            executable[index] = prefix + operand_value;
+            executable[index] = (prefix * 100) + operand_value;
         }
 
         index++;

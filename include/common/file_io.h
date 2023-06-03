@@ -11,7 +11,7 @@
 struct lmcx_file_descriptor_s {
     unsigned short int *data;
     size_t data_size;
-    unsigned short int ext_version[3];
+    unsigned short int ext_version;
 };
 
 /**

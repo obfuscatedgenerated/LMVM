@@ -3,6 +3,7 @@
 #include "assembler/parser.h"
 #include "assembler/lexer.h"
 #include "common/hashtable/kv_dict.h"
+#include "common/checked_alloc.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -10,7 +11,7 @@
 
 
 // parse_tokens that INP, OUT, and HLT have no operands
-int validate_inp_out_hlt(token_ll_node_st *tokens_head) {
+static int validate_inp_out_hlt(token_ll_node_st *tokens_head) {
     token_ll_node_st *current = tokens_head;
     size_t line_idx = 1;
 
@@ -32,7 +33,7 @@ int validate_inp_out_hlt(token_ll_node_st *tokens_head) {
 
 // checks it consists only of letters, and hasn't been used before
 // returns 0 if valid, 1 if invalid, 2 if already used
-label_validation_result_et validate_label_name(char *label, label_doubly_ll_node_st **known_labels_current) {
+label_validation_result_et validate_label_name(char *label, label_doubly_ll_node_st *known_labels_current) {
     // check the label consists only of letters
     char *current_char = label;
     while (*current_char != '\0') {
@@ -48,34 +49,44 @@ label_validation_result_et validate_label_name(char *label, label_doubly_ll_node
 
     // search backwards through the known labels to check the label hasn't been used before
     // don't affect the value of known_labels_current for the user of the function
-    label_doubly_ll_node_st *known_labels_current_copy = *known_labels_current;
-    while (known_labels_current_copy != NULL) {
-        if (strcmp(known_labels_current_copy->label, label) == 0) {
+    while (known_labels_current != NULL) {
+        if (strcmp(known_labels_current->label, label) == 0) {
             return LABEL_VALIDATION_RESULT_OK_EXISTS;
         }
-        known_labels_current_copy = known_labels_current_copy->previous;
+        known_labels_current = known_labels_current->previous;
     }
 
     return LABEL_VALIDATION_RESULT_OK_DOESNT_EXIST;
 }
 
-void push_known_label(char *label, label_doubly_ll_node_st **known_labels_current) {
+static void push_known_label(char *label, label_doubly_ll_node_st **known_labels_current) {
     // allocate memory for the new node
-    label_doubly_ll_node_st *new_node = malloc(sizeof(label_doubly_ll_node_st));
-    new_node->label = label;
+    label_doubly_ll_node_st *new_node = checked_malloc(sizeof(label_doubly_ll_node_st));
+
+    // copy label, or else reference to label will be lost when tokens are freed
+    size_t label_len = strlen(label) + 1;
+    char *label_copy = checked_malloc(label_len);
+    memcpy(label_copy, label, label_len);
+
+    new_node->label = label_copy;
+
     new_node->next = NULL;
     new_node->previous = *known_labels_current;
 
-    // update the current node
+    // update the current node to point to the new node
+    if (*known_labels_current != NULL) {
+        (*known_labels_current)->next = new_node;
+    }
+
     *known_labels_current = new_node;
 }
 
 
 // validates every label in the tokens exists and is used properly, as well as building and returning a hash table of label to memory address
-kv_dict *parse_labels(token_ll_node_st *tokens_head) {
+static kv_dict *parse_labels(token_ll_node_st *tokens_head) {
     // prepare a linked list to store the known labels
-    label_doubly_ll_node_st *known_labels_head = NULL;
-    label_doubly_ll_node_st **known_labels_current = &known_labels_head;
+    // TODO: does the LL need to be doubly, it's only ever read going backwards
+    label_doubly_ll_node_st *known_labels_current = NULL;
 
     // prepare the hash table to store the label to memory address mapping
     kv_dict *label_to_address_dict = new_dict();
@@ -93,7 +104,7 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
             }
         }
 
-        // if the token has a label, parse_tokens it
+        // if the token has a label, validate it
         if (current->token->label != NULL) {
             // check the label is valid
             int label_validation_result = validate_label_name(current->token->label, known_labels_current);
@@ -103,12 +114,18 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
             }
 
             // add the label to the known labels
-            push_known_label(current->token->label, known_labels_current);
+            push_known_label(current->token->label, &known_labels_current);
 
             // push the label and memory address (of the instruction) to the hash table
-            size_t *heap_mem_idx = malloc(sizeof(size_t));
+            size_t *heap_mem_idx = checked_malloc(sizeof(size_t));
             *heap_mem_idx = mem_idx;
-            set_item(label_to_address_dict, current->token->label, strlen(current->token->label) + 1, heap_mem_idx);
+
+            // copy label, or else reference to label will be lost when tokens are freed
+            size_t label_len = strlen(current->token->label) + 1;
+            char *label_copy = checked_malloc(label_len);
+            memcpy(label_copy, current->token->label, label_len);
+
+            set_item(label_to_address_dict, label_copy, label_len, heap_mem_idx);
             // TODO: print below in debug mode only
             //printf("Added label %s to address %zu\n", current->token->label, mem_idx);
         }
@@ -137,11 +154,21 @@ kv_dict *parse_labels(token_ll_node_st *tokens_head) {
         current = current->next;
     }
 
+    // free the known labels linked list
+    while (known_labels_current != NULL) {
+        label_doubly_ll_node_st *next = known_labels_current->previous;
+        // TODO: debug print below
+        //printf("Freeing label %s\n", known_labels_current->label);
+        checked_free(known_labels_current->label);
+        checked_free(known_labels_current);
+        known_labels_current = next;
+    }
+
     return label_to_address_dict;
 }
 
 // all numerical operands must be between 0 and 99
-int validate_numerical_operands(token_ll_node_st *tokens_head) {
+static int validate_numerical_operands(token_ll_node_st *tokens_head) {
     token_ll_node_st *current = tokens_head;
     size_t line_idx = 1;
 
@@ -168,10 +195,14 @@ int validate_numerical_operands(token_ll_node_st *tokens_head) {
             }
         }
 
-        // if the operand is numerical, check it is between 0 and 99
-        int value = strtol(current->token->operand, NULL, 10);
-        if (value < 0 || value > 99) {
-            fprintf(stderr, "Error: operand \"%s\" near line %zu is not between 0 and 99. Line has mnemonic: %s\n", current->token->operand, line_idx, current->token->mnemonic);
+        // if the operand is numerical, check it is between 0 and 99, or 0 to 999 for DAT
+        char *mnemonic = current->token->mnemonic;
+        int is_dat = strcmp(mnemonic, "DAT") == 0;
+
+        int max_value = is_dat ? 999 : 99;
+        int value = (int) strtol(current->token->operand, NULL, 10);
+        if (value < 0 || value > max_value) {
+            fprintf(stderr, "Error: operand \"%s\" near line %zu is not between 0 and %d. Line has mnemonic: %s\n", current->token->operand, line_idx, max_value, mnemonic);
             return 1;
         }
 

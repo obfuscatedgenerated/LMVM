@@ -47,6 +47,9 @@ You can enable them by starting the file with `; lmvm-ext <version>`. The latest
 |      | `CST`    | Constant declaration            |
 |      | `IMP`    | Import file                     |
 
+<!-- TODO: could use negatives for extended instructions -->
+<!-- TODO: DIV? MUL? MOD? -->
+
 The `ERR` instruction acts just like `OUT`, except it outputs to stderr instead of stdout.
 
 The `TXT` instruction toggles the string input/output mode. When enabled, the `INP` instruction will read the next character from stdin or #0 if the end of input is reached. The `OUT` instruction will push a char to the buffer, which will be displayed when #0 is outputted.
@@ -72,28 +75,15 @@ Labels **must** consist of only Latin letters (abc...xyz), and are case-sensitiv
 
 > **Note** In a DAT statement, the operand is an immediate value. If a label is passed, its address will be used as the value. It is the initial value of the variable.
 
-### Extended addressing modes
-
-These addressing modes are unique to this implementation of the LMC.
-
-You can enable them by starting the file with `; lmvm-ext <version>`. The latest extended mode version is 1.
-
-| Symbol | Description | Example  | Definition of mode                                                                   |
-|--------|-------------|----------|--------------------------------------------------------------------------------------|
-| ~      | Absolute    | `ADD ~5` | Use the operand as an absolute address of the parent computer's memory to the value. |
-| &      | Indirect    | `ADD &5` | Use the operand as an address to an address to the value                             |
-| #      | Immediate   | `ADD #5` | Use the operand as the value                                                         |
-
-> **Warning** For absolute addressing, expect SEGFAULTS and values too big for the LMC! Additionally, you are limited to addresses 00-99 of the parent computer's memory as with the LMC. There are no real uses for this addressing mode (unless you have some memory-mapped peripherals that are somehow using memory between 00 and 99 🤔), but it's there if you need it.
-
-> **Note** In a DAT statement, the operand will always be an immediate value, no matter how it is written (
-> e.g. `var DAT 5` and `var DAT #5` are the same expression). the operand is an immediate value. If a label is passed, its address will be used as the value. It is the initial value of the variable.
-
 ## Using labels
 
 Labels can be used as branching points, or as a name for a memory space when used with the DAT operation.
 
 ## Execution arguments
+
+<!-- TODO: either marker comment or command flag to force INP to be limited to 0-999. by default it can be between MIN_INT and MAX_INT -->
+<!-- TODO: similar to also apply this to all ACC operations -->
+<!-- ;lmvm-strict-INP ;lmvm-strict-ACC -->
 
 ### Assembler
 
@@ -106,8 +96,11 @@ Additionally, these arguments are available:
 | -h         | --help           | Display help                                                                                                      |
 | -k         | --no-overwrite   | Keep the output file if it already exists. Refuses to overwrite.                                                  |
 | -v         | --version        | Display version                                                                                                   |
-| -D         | --debug          | Enable debug mode                                                                                                 |
-| -S         | --strict         | Strict mode. Treat warnings as errors.                                                                            |
+| -d         | --debug          | Enable debug mode                                                                                                 |
+| -s         | --strict         | Strict mode. Treat warnings as errors.                                                                            |
+| -x         | --silent         | Silent mode. Don't print anything to stdout or stderr.                                                            |
+
+<!-- TODO: option to allow large or negative operands -->
 
 ### Virtual machine
 
@@ -116,10 +109,10 @@ Additionally, these arguments are available:
 
 | Short arg  | Long arg           | Description               |
 |------------|--------------------|---------------------------|
-| -l \<file> | --log-file \<file> | Log file                  |
 | -h         | --help             | Display help              |
 | -v         | --version          | Display version           |
-| -D         | --debug            | Enable debug mode         |
+| -d         | --debug            | Enable debug mode         |
+| -x         | --silent           | Silent mode. No output.   |
 
 ## Example programs
 
@@ -145,7 +138,7 @@ five    DAT 5
 
 ### Import example (extended)
 
-#### add_5.asm
+#### add_5.lmasm
 
 ```asm
 ; lmvm-ext 1
@@ -153,7 +146,7 @@ five    DAT 5
     ADD #5
 ```
 
-#### main.asm
+#### main.lmasm
 
 ```asm
 ; lmvm-ext 1
@@ -207,3 +200,14 @@ five    DAT 5
     
     HLT
 ```
+
+## Building from source
+
+1. Clone the repository: `git clone https://github.com/obfuscatedgenerated/LMVM.git`
+2. Change directory: `cd LMVM`
+3. Create a build directory: `mkdir build`
+4. Change directory: `cd build`
+5. Run CMake generation: `cmake ..` (you can force a specific generator with the `-G <generator>` option, enable release mode with `-DCMAKE_BUILD_TYPE=Release`)<br>
+By default, CPack installer data will be generated. This requires pandoc to be installed. To disable installer generation, pass `-DINSTALLER=OFF` to CMake.
+6. Build the project: `cmake --build .` (you can specify a specific target with the `--target <target>` option)
+7. Optional: create installers with CPack: `cpack` (you can specify a specific generator with the `-G <generator>` option, enable release mode with `-C Release`)

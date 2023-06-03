@@ -54,6 +54,7 @@ dkms.conf
 
 cmake-build-debug/
 cmake-build-release/
+cmake-build-valgrind/
 .idea/
 *.iml
 

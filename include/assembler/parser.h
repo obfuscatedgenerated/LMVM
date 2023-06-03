@@ -45,7 +45,7 @@ typedef enum label_validation_result_e label_validation_result_et;
  * @param known_labels_current Doubly linked list of known labels, or NULL to disable checking for duplicates
  * @return A label_validation_result_et representing the result of the validation
  */
-label_validation_result_et validate_label_name(char *label, label_doubly_ll_node_st **known_labels_current);
+label_validation_result_et validate_label_name(char *label, label_doubly_ll_node_st *known_labels_current);
 
 /**
  * Runs all validation checks on the given list of tokens, and returns a hash table of labels to memory addresses.
