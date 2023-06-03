@@ -241,8 +241,14 @@ token_ll_node_st *lex(char *code) {
     size_t line_idx = 0;
 
     while (line != NULL) {
+        // strip \r from the end of the line (code expects LF, not CRLF)
+        if (line[strlen(line) - 1] == '\r') {
+            line[strlen(line) - 1] = '\0';
+        }
+
         // make a weak copy of the line to prevent affecting strtok
         char *line_copy = malloc(strlen(line) + 1);
+        // TODO: use safer string copy
         strcpy(line_copy, line);
 
         tagged_lex_result_st res = prepare_and_lex_line(line_copy, line_idx);
