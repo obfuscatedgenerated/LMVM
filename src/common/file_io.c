@@ -15,6 +15,9 @@ static void detect_little_endian_machine() {
     const unsigned int x = 1;
     char *c = (char*) &x;
     is_little_endian_machine = (int) *c;
+
+    // TODO: print below in debug mode only
+    // printf("Detected machine endianness: %s\n", is_little_endian_machine ? "little" : "big");
 }
 
 lmcx_file_descriptor_st *read_lmcx_file(char *path) {
