@@ -40,8 +40,10 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
             };
         }
 
-        // add the token to the array
-        tokens[token_idx] = token;
+        // copy the token to the array
+        size_t token_len = strlen(token);
+        tokens[token_idx] = malloc(token_len + 1);
+        memcpy(tokens[token_idx], token, token_len + 1);
 
         // get the next token
         token = strtok(NULL, "  \t");
@@ -149,8 +151,6 @@ tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
         };
     }
 
-    size_t line_length = strlen(line);
-
     // strip leading whitespace from the line
     while (line[0] == ' ' || line[0] == '\t') {
         line++;
@@ -171,7 +171,8 @@ tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
     }
 
     // if no content remains in the line, return an empty line status code
-    if (strlen(line) == 0) {
+    size_t line_length = strlen(line);
+    if (line_length == 0) {
         return (tagged_lex_result_st) {
                 .is_status_code = 1,
                 .value = (lex_result_ut) {LEX_STATUS_NO_CONTENT}
@@ -247,12 +248,7 @@ token_ll_node_st *lex(char *code) {
             line[strlen(line) - 1] = '\0';
         }
 
-        // make a weak copy of the line to prevent affecting strtok
-        size_t line_length = strlen(line);
-        char *line_copy = malloc(line_length + 1);
-        memcpy(line_copy, line, line_length + 1);
-
-        tagged_lex_result_st res = prepare_and_lex_line(line_copy, line_idx);
+        tagged_lex_result_st res = prepare_and_lex_line(line, line_idx);
 
         // return error if the line is invalid
         if (res.is_status_code != 0 && res.value.status_code != LEX_STATUS_NO_CONTENT) {

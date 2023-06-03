@@ -247,6 +247,10 @@ int main(int argc, char **argv) {
         current = next;
     }
 
+    // free the labels
+    fputs("DEBUG: Free labels\n", debugout);
+    free_dict(labels_to_addresses);
+
     fputs("DEBUG: Check executable was built\n", debugout);
     if (executable == NULL) {
         return 1;
