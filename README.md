@@ -95,13 +95,14 @@ Labels can be used as branching points, or as a name for a memory space when use
 The first positional argument is the input file to use as the entrypoint. It is **required**.<br />
 Additionally, these arguments are available:
 
-| Short arg  | Long arg         | Description                            |
-|------------|------------------|----------------------------------------|
-| -o \<file> | --output \<file> | Output file **(also required)**        |
-| -h         | --help           | Display help                           |
-| -v         | --version        | Display version                        |
-| -D         | --debug          | Enable debug mode                      |
-| -S         | --strict         | Strict mode. Treat warnings as errors. |
+| Short arg  | Long arg         | Description                                                                                                       |
+|------------|------------------|-------------------------------------------------------------------------------------------------------------------|
+| -o \<file> | --output \<file> | Output file, defaults to the same file name as the input (but with executable extension) in the current directory |
+| -h         | --help           | Display help                                                                                                      |
+| -k         | --no-overwrite   | Keep the output file if it already exists. Refuses to overwrite.                                                  |
+| -v         | --version        | Display version                                                                                                   |
+| -D         | --debug          | Enable debug mode                                                                                                 |
+| -S         | --strict         | Strict mode. Treat warnings as errors.                                                                            |
 
 ### Virtual machine
 

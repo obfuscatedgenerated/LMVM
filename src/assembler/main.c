@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
+#include <dirent.h>
+#include <libgen.h>
 
 const unsigned int VERSION[3] = {0, 0, 1};
 
@@ -15,16 +17,21 @@ const unsigned int VERSION[3] = {0, 0, 1};
 
 static int debug_mode = 0;
 static int strict_mode = 0;
+static int no_overwrite_mode = 0;
 
-#define USAGE_STRING "%s [-h | --help] <-o | --output OUTFILE> INFILE [optional-args]\n"
-#define OPTIONS "-ho:vDS"
+static char *infile_path = NULL;
+static char *outfile_path = NULL;
+
+#define USAGE_STRING "%s [-h | --help] INFILE [-o | --output OUTFILE] [optional-flags]\n"
+#define OPTIONS "-ho:kvDS"
 const struct option LONG_OPTIONS[] = {
-        {"help",    no_argument,       NULL, 'h'},
-        {"output",  required_argument, NULL, 'o'},
-        {"version", no_argument,       NULL, 'v'},
-        {"debug",   no_argument,       &debug_mode, 'D'},
-        {"strict", no_argument,       &strict_mode, 'S'},
-        {NULL,      0,                 NULL, 0}
+        {"help",         no_argument,       NULL,         'h'},
+        {"output",       required_argument, NULL,         'o'},
+        {"no-overwrite", no_argument, &no_overwrite_mode, 'k'},
+        {"version",      no_argument,       NULL,         'v'},
+        {"debug",        no_argument, &debug_mode,        'D'},
+        {"strict",       no_argument, &strict_mode,       'S'},
+        {NULL,           0,                 NULL,         0}
 };
 
 
@@ -38,23 +45,21 @@ void parse_args(int argc, char **argv) {
                 puts("\n-h | --help:    Show this help message and exit");
                 puts("\nRequired positional arguments:");
                 puts("INFILE:           The input entrypoint to assemble");
-                puts("\nRequired arguments:");
-                puts("-o | --output OUTFILE:  The output file to write the executable to");
                 puts("\nOptional arguments:");
+                puts("-o | --output OUTFILE:  The output file to write the executable to. Defaults to the same file name (with executable extension) in the current directory");
+                puts("-k | --no-overwrite:       Keep the output file if it already exists. Refuses to overwrite.");
                 puts("-v | --version:  Show the version number and license information");
                 puts("-D | --debug:    Enable debug mode");
                 puts("-S | --strict:   Enable strict mode. Warnings are treated as errors");
                 puts("");
                 exit(0);
             case 'o':
-                // TODO
-                puts("Output file not yet implemented");
+                outfile_path = optarg;
                 break;
             case 'v':
                 printf(VERSION_STRING, VERSION[0], VERSION[1], VERSION[2]);
             case 1:
-                // TODO input file
-                puts("Input file not yet implemented");
+                infile_path = optarg;
                 break;
             default:
                 printf(USAGE_STRING, argv[0]);
@@ -63,29 +68,102 @@ void parse_args(int argc, char **argv) {
     }
 }
 
+void resolve_output_path() {
+    // validate the output file if specified
+    if (outfile_path != NULL) {
+        // check if the output file is a directory
+        if (is_dir(outfile_path)) {
+            fprintf(stderr, "Error: Output file '%s' is a directory\n", outfile_path);
+            exit(1);
+        }
+
+        // check if the file already exists
+        if (no_overwrite_mode && file_exists_and_accessible(outfile_path)) {
+            fprintf(stderr, "Error: Output file '%s' already exists and no-overwrite mode is enabled\n", outfile_path);
+            exit(1);
+        }
+
+        return;
+    }
+
+    // if no output file specified, calculate the output file path
+
+    // get the file name of the input file
+    char *infile_name = basename(infile_path);
+
+    // copy the file name to a new buffer
+    size_t infile_name_len = strlen(infile_name);
+    char *outfile_name = malloc(infile_name_len + 1);
+    memcpy(outfile_name, infile_name, infile_name_len + 1);
+
+    // replace the extension with .lmc
+    char *dot = strrchr(outfile_name, '.');
+    size_t default_execfile_ext_len = strlen(DEFAULT_EXECFILE_EXT);
+    if (dot == NULL) {
+        // no extension, append .lmc
+        strncat(outfile_name, DEFAULT_EXECFILE_EXT, default_execfile_ext_len + 1);
+    } else {
+        // replace the extension with .lmc
+        memcpy(dot, DEFAULT_EXECFILE_EXT, default_execfile_ext_len + 1);
+    }
+
+    // get the current working directory and create a buffer to fit it and the file name
+    char *cwd = getcwd(NULL, 0);
+    size_t cwd_len = strlen(cwd);
+
+    outfile_path = malloc(cwd_len + strlen(outfile_name) + 2);
+    memcpy(outfile_path, cwd, cwd_len);
+
+    // add a slash if needed, use backslash on windows
+    char slash = '/';
+#ifdef _WIN32
+    slash = '\\';
+#endif
+    if (outfile_path[cwd_len - 1] != slash) {
+        outfile_path[cwd_len] = slash;
+        cwd_len++;
+    }
+
+    // copy the file name to the end of the cwd
+    memcpy(outfile_path + cwd_len, outfile_name, strlen(outfile_name) + 1);
+
+    free(cwd);
+    free(outfile_name);
+    //free(infile_name);
+}
+
 
 int main(int argc, char **argv) {
     parse_args(argc, argv);
 
-    char *code = "; Count to 5\n"
-                 "\n"
-                 "loop    LDA count  ; load the value of count into the accumulator\n"
-                 "        ADD one\n"
-                 "        OUT        ; output the value of the accumulator\n"
-                 "        STA count  ; hold the value of the accumulator into count\n"
-                 "        SUB five   ; subtract 5 from the accumulator...\n"
-                 "        BRZ end    ; ...to therefore stop execution if the count is 5 (ACC=0)\n"
-                 "        BRA loop   ; else, branch to loop\n"
-                 "end     HLT\n"
-                 "\n"
-                 "\n"
-                 "count   DAT 0\n"
-                 "one     DAT 1\n"
-                 "five    DAT 5";
+    // check for input file
+    if (infile_path == NULL) {
+        fputs("No input file specified\n", stderr);
+        fprintf(stderr, "\nUsage: ");
+        fprintf(stderr, USAGE_STRING, argv[0]);
+        exit(1);
+    }
 
-    // copy code to a buffer
-    char *code_buffer = malloc(strlen(code) + 1);
-    strcpy(code_buffer, code);
+    // check if the input file is a directory
+    if (is_dir(infile_path)) {
+        fprintf(stderr, "Error: Input file '%s' is a directory\n", infile_path);
+        exit(1);
+    }
+
+    // check input file exists
+    if(!file_exists_and_accessible(infile_path)) {
+        fprintf(stderr, "Input file '%s' does not exist or cannot be opened\n", infile_path);
+        exit(1);
+    }
+
+    resolve_output_path();
+
+    printf("Input file: %s\n", infile_path);
+    printf("Output file: %s\n", outfile_path);
+    puts("Preparing to assemble...");
+
+    // read the file into the code buffer
+    char *code_buffer = read_text_file(infile_path);
 
     // lex and validate the code
     token_ll_node_st *tokens_head = lex(code_buffer);
@@ -119,7 +197,10 @@ int main(int argc, char **argv) {
     descriptor->ext_version[2] = 0;
 
     // save the executable
-    write_lmcx_file(descriptor, "test.lmc", 1);
+    write_lmcx_file(descriptor, outfile_path, 1);
+
+    free(code_buffer);
+    free(descriptor);
 
     return 0;
 }

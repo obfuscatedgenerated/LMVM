@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 lmcx_file_descriptor_st *read_lmcx_file(char *path) {
     FILE *file = fopen(path, "rb");
@@ -156,4 +157,26 @@ write_status_et write_text_file(char *data, char *path, int overwrite) {
     fclose(file);
 
     return WRITE_SUCCESS;
+}
+
+
+int file_exists_and_accessible(char *path) {
+    FILE *file = fopen(path, "rb");
+
+    if (file == NULL) {
+        return 0;
+    }
+
+    fclose(file);
+    return 1;
+}
+
+int is_dir(char *path) {
+    struct stat statbuf;
+
+    if (stat(path, &statbuf) != 0) {
+        return 0;
+    }
+
+    return S_ISDIR(statbuf.st_mode);
 }

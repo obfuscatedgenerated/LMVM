@@ -78,4 +78,21 @@ write_status_et write_lmcx_file(lmcx_file_descriptor_st *lmcx, char *path, int o
  */
 write_status_et write_text_file(char *data, char *path, int overwrite);
 
+
+/**
+ * Checks if a file exists and is accessible.
+ *
+ * @param path  The path of the file to check
+ * @return      Whether the file exists
+ */
+int file_exists_and_accessible(char *path);
+
+/**
+ * Checks if a path is a directory.
+ *
+ * @param path  The path to check
+ * @return      Whether the path is a directory
+ */
+int is_dir(char *path);
+
 #endif //LMVM_FILE_IO_H
