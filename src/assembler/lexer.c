@@ -33,7 +33,7 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     while (token != NULL) {
         // do not allow more than 3 tokens
         if (token_idx == 3) {
-            fprintf(stderr, "\nError: Too many tokens near line %llu. Line content: %s\n", line_idx, line);
+            fprintf(stderr, "\nError: Too many tokens near line %zu. Line content: %s\n", line_idx, line);
             return (tagged_lex_result_st) {
                     .is_status_code = 1,
                     .value = (lex_result_ut) {LEX_STATUS_ERROR}
@@ -71,7 +71,7 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
                     // if a mnemonic has already been found, put error
                     if (mnemonic != NULL) {
-                        fprintf(stderr, "\nError: Duplicate mnemonic encountered near line %llu. Line content: %s\n", line_idx, line);
+                        fprintf(stderr, "\nError: Duplicate mnemonic encountered near line %zu. Line content: %s\n", line_idx, line);
                         return (tagged_lex_result_st) {
                                 .is_status_code = 1,
                                 .value = (lex_result_ut) {LEX_STATUS_ERROR}
@@ -87,7 +87,7 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                         // this means that the line is in the format MNE OP rather than lbl MNE OP
                         // therefore, if there are 3 tokens on this line, put error
                         if (token_idx == 3) {
-                            fprintf(stderr, "\nError: Too many tokens near line %llu. Line content: %s\n", line_idx, line);
+                            fprintf(stderr, "\nError: Too many tokens near line %zu. Line content: %s\n", line_idx, line);
                             return (tagged_lex_result_st) {
                                     .is_status_code = 1,
                                     .value = (lex_result_ut) {LEX_STATUS_ERROR}
@@ -103,7 +103,7 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
         } else {
             // if an operand has already been found, put error
             if (operand != NULL) {
-                fprintf(stderr, "\nError: Duplicate operand encountered near line %llu. Line content: %s\n", line_idx, line);
+                fprintf(stderr, "\nError: Duplicate operand encountered near line %zu. Line content: %s\n", line_idx, line);
                 return (tagged_lex_result_st) {
                         .is_status_code = 1,
                         .value = (lex_result_ut) {LEX_STATUS_ERROR}
@@ -117,7 +117,7 @@ tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
     // if no mnemonic has been found, put error
     if (mnemonic == NULL) {
-        fprintf(stderr, "\nError: Missing or invalid mnemonic encountered near line %llu. Line content: %s\n", line_idx, line);
+        fprintf(stderr, "\nError: Missing or invalid mnemonic encountered near line %zu. Line content: %s\n", line_idx, line);
         return (tagged_lex_result_st) {
                 .is_status_code = 1,
                 .value = (lex_result_ut) {LEX_STATUS_ERROR}

@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
-#include <dirent.h>
 #include <libgen.h>
+#include <unistd.h>
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 0

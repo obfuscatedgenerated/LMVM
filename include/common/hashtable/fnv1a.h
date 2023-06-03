@@ -2,6 +2,7 @@
 #define FNV1A_HASHTABLE_FNV1A_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #define FNV1A_BASIS 0xcbf29ce484222325
 #define FNV1A_PRIME 0x100000001b3

@@ -53,9 +53,13 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 #        NTH},${GIT_DATE_DATE})
 
 
-# add LMASM executable and link libraries
+# add LMASM executable
 add_executable(LMASM ${ASM_SOURCES} ${COMMON_SOURCES})
-target_link_libraries(LMASM regex)
+
+# add regex library for windows
+IF (WIN32)
+    target_link_libraries(LMASM regex)
+ENDIF()
 
 # add LMVM executable
 add_executable(LMVM ${VM_SOURCES} ${COMMON_SOURCES})

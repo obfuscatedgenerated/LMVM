@@ -1,7 +1,7 @@
 #ifndef FNV1A_HASHTABLE_KV_DICT_H
 #define FNV1A_HASHTABLE_KV_DICT_H
 
-#include <stdint.h>
+#include <stddef.h>
 
 #define INIT_CAPACITY 8
 
