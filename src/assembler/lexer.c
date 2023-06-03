@@ -21,14 +21,6 @@ char *mnemonics[] = {
         "DAT"
 };
 
-char *ext_mnemonics[] = {
-        "ERR",
-        "TXT",
-        "SLP",
-        "CST",
-        "IMP",
-};
-
 // lex the line
 tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     // allocate array of tokens (up to 3)

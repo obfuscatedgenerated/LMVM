@@ -4,8 +4,6 @@
 
 **A compiler + virtual machine to execute LMC assembly on your computer.**
 
-**NOTE: this README references extended modes. This feature is not yet implemented. It is documented to serve as a reference for future work.**
-
 ## Executables
 
 ### [LMVM (virtual machine)](src/vm)
@@ -33,32 +31,6 @@ All mnemonics are case-insensitive.
 
 <!-- TODO: possibly at OTC: 922 from peter higginson's lmc to the standard mnemonics -->
 
-### Extended instruction set
-
-These instructions are unique to this implementation of the LMC.
-
-You can enable them by starting the file with `; lmvm-ext <version>`. The latest extended mode version is 1.
-
-| Code | Mnemonic | Description                     |
-|------|----------|---------------------------------|
-| 903  | `ERR`    | Output to stderr                |
-| 904  | `TXT`    | Toggle string input/output mode |
-| 01x  | `SLP`    | Sleep for x milliseconds        |
-|      | `CST`    | Constant declaration            |
-|      | `IMP`    | Import file                     |
-
-The `ERR` instruction acts just like `OUT`, except it outputs to stderr instead of stdout.
-
-The `TXT` instruction toggles the string input/output mode. When enabled, the `INP` instruction will read the next character from stdin or #0 if the end of input is reached. The `OUT` instruction will push a char to the buffer, which will be displayed when #0 is outputted.
-
-The `SLP` instruction will sleep for x milliseconds. To attain a longer delay, call it multiple times.
-
-The `CST` pseudo-instruction is used to declare constants. It functions the same as `DAT`, except the value may not be changed.
-
-The `IMP` pseudo-instruction imports another file, where the relative or absolute path to it is named in place of the operand. This is accomplished by simply inserting the contents of the file on the line where this instruction is found, except any `DAT` declarations, which are inserted at the bottom to keep the program valid.
-
-> **Warning** There are no safeguards against circular imports. If you import a file that imports the current file, you will get an infinite loop. Additionally, no spaces are allowed in the file path.
-
 ## Addressing modes
 
 | Symbol | Description                                | Example       | Definition of mode                                                                       |
@@ -71,23 +43,6 @@ Labels **must** consist of only Latin letters (abc...xyz), and are case-sensitiv
 > **Warning** The available memory addresses are 0-99 only. Any address outside of this range will cause an error.
 
 > **Note** In a DAT statement, the operand is an immediate value. If a label is passed, its address will be used as the value. It is the initial value of the variable.
-
-### Extended addressing modes
-
-These addressing modes are unique to this implementation of the LMC.
-
-You can enable them by starting the file with `; lmvm-ext <version>`. The latest extended mode version is 1.
-
-| Symbol | Description | Example  | Definition of mode                                                                   |
-|--------|-------------|----------|--------------------------------------------------------------------------------------|
-| ~      | Absolute    | `ADD ~5` | Use the operand as an absolute address of the parent computer's memory to the value. |
-| &      | Indirect    | `ADD &5` | Use the operand as an address to an address to the value                             |
-| #      | Immediate   | `ADD #5` | Use the operand as the value                                                         |
-
-> **Warning** For absolute addressing, expect SEGFAULTS and values too big for the LMC! Additionally, you are limited to addresses 00-99 of the parent computer's memory as with the LMC. There are no real uses for this addressing mode (unless you have some memory-mapped peripherals that are somehow using memory between 00 and 99 🤔), but it's there if you need it.
-
-> **Note** In a DAT statement, the operand will always be an immediate value, no matter how it is written (
-> e.g. `var DAT 5` and `var DAT #5` are the same expression). the operand is an immediate value. If a label is passed, its address will be used as the value. It is the initial value of the variable.
 
 ## Using labels
 
@@ -141,69 +96,4 @@ end     HLT
 count   DAT 0
 one     DAT 1
 five    DAT 5
-```
-
-### Import example (extended)
-
-#### add_5.asm
-
-```asm
-; lmvm-ext 1
-
-    ADD #5
-```
-
-#### main.asm
-
-```asm
-; lmvm-ext 1
-
-    LDA #10        ; the ACC holds 10
-    OUT            ; output 10
-    IMP add_5.asm  ; import the add_5.asm file
-    OUT            ; now the ACC holds 15
-    HLT
-```
-
-### Hello world (extended)
-
-```asm
-; lmvm-ext 1
-
-    ; enable string input/output mode
-    TXT
-    
-    ; push each ASCII character to the buffer
-    LDA #72
-    OUT
-    LDA #101
-    OUT
-    LDA #108
-    OUT
-    LDA #108
-    OUT
-    LDA #111
-    OUT
-    LDA #44
-    OUT
-    LDA #32
-    OUT
-    LDA #119
-    OUT
-    LDA #111
-    OUT
-    LDA #114
-    OUT
-    LDA #108
-    OUT
-    LDA #100
-    OUT
-    LDA #33
-    OUT
-    
-    ; output the buffer with the null terminator
-    LDA #0
-    OUT
-    
-    HLT
 ```
