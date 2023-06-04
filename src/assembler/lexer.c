@@ -51,7 +51,12 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
         token_idx++;
     }
 
-    char *label = tokens[0];
+    // always try to copy the first token to the label
+    // if there is no label, this will be overwritten
+    size_t label_len = strlen(tokens[0]);
+    char *label = malloc(label_len + 1);
+    memcpy(label, tokens[0], label_len + 1);
+
     char *mnemonic = NULL;
     char *operand = NULL;
 
@@ -77,14 +82,21 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                     // if a mnemonic has already been found, put error
                     if (mnemonic != NULL) {
                         fprintf(stderr, "\nError: Duplicate mnemonic encountered near line %zu. Line content: %s\n", line_idx, line);
+
+                        // free token array
+                        for (size_t i = 0; i < token_idx; i++) {
+                            free(tokens[i]);
+                        }
+
                         return (tagged_lex_result_st) {
                                 .is_status_code = 1,
                                 .value = (lex_result_ut) {LEX_STATUS_ERROR}
                         };
                     }
 
-                    // if this is the first token, NULL the label variable and decrement the operand index
+                    // if this is the first token, clear and NULL the label variable and decrement the operand index
                     if (idx == 0) {
+                        free(label);
                         label = NULL;
 
                         operand_idx--;
@@ -93,6 +105,12 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                         // therefore, if there are 3 tokens on this line, put error
                         if (token_idx == 3) {
                             fprintf(stderr, "\nError: Too many tokens near line %zu. Line content: %s\n", line_idx, line);
+
+                            // free token array
+                            for (size_t i = 0; i < token_idx; i++) {
+                                free(tokens[i]);
+                            }
+
                             return (tagged_lex_result_st) {
                                     .is_status_code = 1,
                                     .value = (lex_result_ut) {LEX_STATUS_ERROR}
@@ -114,6 +132,12 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
             // if an operand has already been found, put error
             if (operand != NULL) {
                 fprintf(stderr, "\nError: Duplicate operand encountered near line %zu. Line content: %s\n", line_idx, line);
+
+                // free token array
+                for (size_t i = 0; i < token_idx; i++) {
+                    free(tokens[i]);
+                }
+
                 return (tagged_lex_result_st) {
                         .is_status_code = 1,
                         .value = (lex_result_ut) {LEX_STATUS_ERROR}
@@ -121,8 +145,15 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
             }
 
             // set the operand
-            operand = tokens[idx];
+            size_t token_len = strlen(tokens[idx]);
+            operand = malloc(token_len + 1);
+            memcpy(operand, tokens[idx], token_len + 1);
         }
+    }
+
+    // free token array
+    for (size_t i = 0; i < token_idx; i++) {
+        free(tokens[i]);
     }
 
     // if no mnemonic has been found, put error
