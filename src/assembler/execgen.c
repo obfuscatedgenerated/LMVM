@@ -35,7 +35,7 @@ static int mnemonic_to_prefix(char * mnemonic) {
 // classic LMC has 100 memory addresses, so the executable is 100 unsigned integers
 // we may expand this when extended LMC is implemented
 unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *labels_to_addresses) {
-    unsigned short int *executable = calloc(EXECUTABLE_SIZE, sizeof(unsigned int));
+    unsigned short int *executable = calloc(EXECUTABLE_SIZE, sizeof(unsigned short int));
 
     // convert each token into the machine code
     token_ll_node_st *current = tokens_head;
@@ -107,7 +107,7 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
             }
 
             // write the instruction to the executable
-            executable[index] = prefix + operand_value;
+            executable[index] = (prefix * 100) + operand_value;
         }
 
         index++;
