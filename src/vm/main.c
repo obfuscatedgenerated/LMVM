@@ -91,9 +91,9 @@ static void parse_args(int argc, char **argv) {
 
 // SPECIAL REGISTERS
 static unsigned short int reg_PC = 0; // program counter
-//static unsigned short int reg_ACC = 0; // accumulator
+static unsigned short int reg_ACC = 0; // accumulator
 static unsigned short int reg_CIR = 0; // current instruction register
-//static unsigned short int reg_MAR = 0; // memory address register
+static unsigned short int reg_MAR = 0; // memory address register
 // MDR isn't needed since we can simply access memory[reg_MAR] directly
 
 // MEMORY ARRAY
@@ -107,6 +107,7 @@ int do_execution(void) {
     while (result != EXECUTION_HALT && result != EXECUTION_ERROR) {
         // fetch
         // a real computer would go via the MAR and MDR, but we can go straight from RAM to CIR
+        // TODO: CIR can be reduced down to scoped variable (instruction)
         reg_CIR = memory[reg_PC];
 
         fprintf(debugout, "DEBUG: CIR = %u\n", reg_CIR);
@@ -114,11 +115,12 @@ int do_execution(void) {
 
         // decode
         lmc_opcode_et opcode = (lmc_opcode_et) (reg_CIR / 100);
-        unsigned short int operand = reg_CIR % 100;
+        // TODO: MAR can be reduced down to scoped variable (operand)
+        reg_MAR = reg_CIR % 100;
 
         // check operand in range
-        if (operand > 99) {
-            fprintf(stderr, "Error: Operand out of range: %u\n", operand);
+        if (reg_MAR > 99) {
+            fprintf(stderr, "Error: Operand out of range: %u\n", reg_MAR);
             result = EXECUTION_ERROR;
         }
 
@@ -134,12 +136,12 @@ int do_execution(void) {
             }
         }
 
-        fprintf(debugout, "DEBUG: Opcode = %u, Operand = %u\n", opcode, operand);
+        fprintf(debugout, "DEBUG: Opcode = %u, Operand = %u\n", opcode, reg_MAR);
 
 
         // execute
         if (result != EXECUTION_ERROR) {
-            result = execute(opcode, &operand, NULL, &reg_PC);
+            result = execute(opcode, &reg_MAR, &reg_ACC, &reg_PC);
         }
 
         fprintf(debugout, "DEBUG: Result = %u\n", result);
