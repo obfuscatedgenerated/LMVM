@@ -276,9 +276,8 @@ int main(int argc, char **argv) {
     descriptor->data_size = EXECUTABLE_SIZE;
 
     // don't enable extended features
-    descriptor->ext_version[0] = 0;
-    descriptor->ext_version[1] = 0;
-    descriptor->ext_version[2] = 0;
+    descriptor->ext_version = 0;
+    // to enable: descriptor->ext_version = EXT_SUPPORTED_VERSION;
 
     // save the executable
     fputs("DEBUG: Write executable to file\n", debugout);

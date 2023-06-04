@@ -2,6 +2,7 @@
 #define LMVM_EXECUTABLE_PROPS_H
 
 #define EXECUTABLE_SIZE 100
+#define EXT_SUPPORTED_VERSION 0
 
 // standard lmc files will start with LMCX, followed by the data
 // extended lmc files will start with LMCXTENDED, followed by the major version, minor version, patch version, and the data

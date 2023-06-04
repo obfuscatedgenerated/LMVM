@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include "common/file_io.h"
+#include "common/executable_props.h"
 
 // TODO: consider moving some parsing to common
 #define MAJOR_VERSION 0
@@ -125,6 +126,11 @@ int main(int argc, char **argv) {
 
     if (lmcx == NULL) {
         fprintf(stderr, "Error: Failed to read input file '%s'\n", infile_path);
+        exit(1);
+    }
+
+    if (lmcx->ext_version > EXT_SUPPORTED_VERSION) {
+        fprintf(stderr, "Error: Input file '%s' is of a newer lmvm-ext version than this VM supports\n", infile_path);
         exit(1);
     }
 
