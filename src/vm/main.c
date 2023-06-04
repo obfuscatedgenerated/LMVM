@@ -129,6 +129,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    fprintf(debugout, "DEBUG: Input file lmxm-ext version: %u\n", lmcx->ext_version);
     if (lmcx->ext_version > EXT_SUPPORTED_VERSION) {
         fprintf(stderr, "Error: Input file '%s' is of a newer lmvm-ext version than this VM supports\n", infile_path);
         exit(1);
