@@ -11,10 +11,16 @@
 #include <libgen.h>
 #include <unistd.h>
 
-#define MAJOR_VERSION 0
-#define MINOR_VERSION 0
-#define PATCH_VERSION 1
-static const unsigned short int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
+#ifndef VERSION_MAJOR
+#define VERSION_MAJOR 0
+#endif
+#ifndef VERSION_MINOR
+#define VERSION_MINOR 0
+#endif
+#ifndef VERSION_PATCH
+#define VERSION_PATCH 0
+#endif
+static const unsigned short int VERSION[3] = {VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 
 #define VERSION_STRING "\nLMASM v%u.%u.%u (supporting lmvm-ext %u)\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
 
