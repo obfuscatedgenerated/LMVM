@@ -177,6 +177,7 @@ static void resolve_output_path(void) {
     //free(infile_name);
 }
 
+// TODO: give debugout to other modules
 
 int main(int argc, char **argv) {
     parse_args(argc, argv);

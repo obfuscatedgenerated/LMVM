@@ -166,6 +166,7 @@ int do_execution(void) {
     return result == EXECUTION_ERROR;
 }
 
+// TODO: give debugout to other modules
 
 int main(int argc, char **argv) {
     parse_args(argc, argv);
