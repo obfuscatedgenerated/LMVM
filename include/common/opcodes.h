@@ -15,7 +15,9 @@ enum lmc_opcode_e {
     OP_LMC_BRZ = 7,
     OP_LMC_BRP = 8,
     OP_LMC_IO_OP = 9,
-    OP_LMC_HLT = 0
+    OP_LMC_HLT = 0,
+    OP_LMC_IO_OP_INP = 901,
+    OP_LMC_IO_OP_OUT = 902
 };
 
 /**
@@ -23,8 +25,5 @@ enum lmc_opcode_e {
  * @see lmc_opcode_e
  */
 typedef enum lmc_opcode_e lmc_opcode_et;
-
-#define LMC_IO_OP_INP 901
-#define LMC_IO_OP_OUT 902
 
 #endif //LMVM_OPCODES_H

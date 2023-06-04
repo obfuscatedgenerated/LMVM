@@ -4,6 +4,7 @@
 #include <getopt.h>
 #include "common/file_io.h"
 #include "common/executable_props.h"
+#include "vm/execution.h"
 
 // TODO: consider moving some parsing to common
 #define MAJOR_VERSION 0
@@ -86,12 +87,76 @@ static void parse_args(int argc, char **argv) {
 // we might add a JIT compiler later (or direct translation to native asm/machine code), but that's a little overengineered for now
 // jvm hotspot interprets and then switches to JIT if a method is called a lot
 
+// TODO: should these be in a scope and just passed to do_execution? does it matter?
+
 // SPECIAL REGISTERS
-//static unsigned short int reg_PC = 0; // program counter
+static unsigned short int reg_PC = 0; // program counter
 //static unsigned short int reg_ACC = 0; // accumulator
-//static unsigned short int reg_CIR = 0; // current instruction register
+static unsigned short int reg_CIR = 0; // current instruction register
 //static unsigned short int reg_MAR = 0; // memory address register
-//static unsigned short int reg_MDR = 0; // memory data register
+// MDR isn't needed since we can simply access memory[reg_MAR] directly
+
+// MEMORY ARRAY
+static unsigned short int memory[EXECUTABLE_SIZE] = {0};
+
+
+// returns 0 if execution was successful, 1 if there was an error
+int do_execution(void) {
+    execution_result_et result = EXECUTION_INDETERMINATE;
+
+    while (result != EXECUTION_HALT && result != EXECUTION_ERROR) {
+        // fetch
+        // a real computer would go via the MAR and MDR, but we can go straight from RAM to CIR
+        reg_CIR = memory[reg_PC];
+
+        fprintf(debugout, "DEBUG: CIR = %u\n", reg_CIR);
+
+
+        // decode
+        lmc_opcode_et opcode = (lmc_opcode_et) (reg_CIR / 100);
+        unsigned short int operand = reg_CIR % 100;
+
+        // check operand in range
+        if (operand > 99) {
+            fprintf(stderr, "Error: Operand out of range: %u\n", operand);
+            result = EXECUTION_ERROR;
+        }
+
+        // if opcode is IO_OP, check for full valid operation (INP: 901, OUT: 902)
+        if (opcode == OP_LMC_IO_OP) {
+            if (reg_CIR == 901) {
+                opcode = OP_LMC_IO_OP_INP;
+            } else if (reg_CIR == 902) {
+                opcode = OP_LMC_IO_OP_OUT;
+            } else {
+                fprintf(stderr, "Error: Invalid IO operation: %u\n", reg_CIR);
+                result = EXECUTION_ERROR;
+            }
+        }
+
+        fprintf(debugout, "DEBUG: Opcode = %u, Operand = %u\n", opcode, operand);
+
+
+        // execute
+        if (result != EXECUTION_ERROR) {
+            result = execute(opcode, &operand, NULL, &reg_PC);
+        }
+
+        fprintf(debugout, "DEBUG: Result = %u\n", result);
+
+
+        // execute should never return EXECUTION_INDETERMINATE
+        if (result == EXECUTION_INDETERMINATE) {
+            result = EXECUTION_ERROR;
+        }
+
+        if (result == EXECUTION_ERROR) {
+            fprintf(stderr, "Error occurred with PC = %u CIR = %u\n", reg_PC, reg_CIR);
+        }
+    }
+
+    return result == EXECUTION_ERROR;
+}
 
 
 int main(int argc, char **argv) {
@@ -135,11 +200,31 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    fputs("DEBUG: Check data size\n", debugout);
+
+    // TODO: should we separate value size and data count in the lmcx struct?
+    unsigned int data_value_count = lmcx->data_size / sizeof(unsigned short int);
+
+    if (data_value_count > EXECUTABLE_SIZE) {
+        fprintf(stderr, "Error: Input file '%s' is too large to fit in memory (expected %u values but got %u)\n", infile_path, EXECUTABLE_SIZE, data_value_count);
+        exit(1);
+    }
+
+    fputs("DEBUG: Load into memory\n", debugout);
+    memcpy(memory, lmcx->data, EXECUTABLE_SIZE);
+
+
     fputs("DEBUG: Free lmcx data\n", debugout);
     free(lmcx->data);
 
     fputs("DEBUG: Free lmcx\n", debugout);
     free(lmcx);
 
-    return 0;
+
+    fputs("DEBUG: Start execution\n", debugout);
+
+    int exit_code = do_execution();
+    fprintf(debugout, "DEBUG: Execution finished with exit code %d\n", exit_code);
+
+    return exit_code;
 }

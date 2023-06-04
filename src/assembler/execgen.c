@@ -48,9 +48,9 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
         // we could do some overengineered hash table, but that seems bloated and pointless
         // parse all mnemonics that don't have operands
         if (strcmp(mnemonic, "INP") == 0) {
-            executable[index] = LMC_IO_OP_INP;
+            executable[index] = OP_LMC_IO_OP_INP;
         } else if (strcmp(mnemonic, "OUT") == 0) {
-            executable[index] = LMC_IO_OP_OUT;
+            executable[index] = OP_LMC_IO_OP_OUT;
         } else if (strcmp(mnemonic, "HLT") == 0) {
             executable[index] = OP_LMC_HLT;
         } else {
