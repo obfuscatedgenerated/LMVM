@@ -30,9 +30,10 @@ typedef enum execution_result_e execution_result_et;
  * @param reg_MAR The memory address register.
  * @param reg_ACC The accumulator register.
  * @param reg_PC The program counter register.
+ * @param memory The memory array.
  * @return The result of executing the instruction.
  */
 execution_result_et
-execute(lmc_opcode_et opcode, unsigned short int *reg_MAR, unsigned short int *reg_ACC, unsigned short int *reg_PC);
+execute(lmc_opcode_et opcode, unsigned short int *reg_MAR, int *reg_ACC, unsigned short int *reg_PC, unsigned short int *memory);
 
 #endif //LMVM_EXECUTION_H

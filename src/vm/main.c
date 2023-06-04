@@ -91,7 +91,7 @@ static void parse_args(int argc, char **argv) {
 
 // SPECIAL REGISTERS
 static unsigned short int reg_PC = 0; // program counter
-static unsigned short int reg_ACC = 0; // accumulator
+static int reg_ACC = 0; // accumulator
 static unsigned short int reg_CIR = 0; // current instruction register
 static unsigned short int reg_MAR = 0; // memory address register
 // MDR isn't needed since we can simply access memory[reg_MAR] directly
@@ -141,7 +141,7 @@ int do_execution(void) {
 
         // execute
         if (result != EXECUTION_ERROR) {
-            result = execute(opcode, &reg_MAR, &reg_ACC, &reg_PC);
+            result = execute(opcode, &reg_MAR, &reg_ACC, &reg_PC, memory);
         }
 
         fprintf(debugout, "DEBUG: Result = %u\n", result);
