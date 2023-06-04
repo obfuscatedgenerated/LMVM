@@ -16,7 +16,7 @@
 #define PATCH_VERSION 1
 static const unsigned short int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
 
-#define VERSION_STRING "\nLMASM v%u.%u.%u\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
+#define VERSION_STRING "\nLMASM v%u.%u.%u (supporting lmvm-ext %u)\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
 
 static int debug_mode;
 static int strict_mode;
@@ -71,7 +71,7 @@ static void parse_args(int argc, char **argv) {
                 outfile_path = optarg;
                 break;
             case 'v':
-                printf(VERSION_STRING, VERSION[0], VERSION[1], VERSION[2]);
+                printf(VERSION_STRING, VERSION[0], VERSION[1], VERSION[2], EXT_SUPPORTED_VERSION);
                 break;
             case 'x':
                 // redirect stdout and stderr to nowhere

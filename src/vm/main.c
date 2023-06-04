@@ -11,7 +11,7 @@
 #define PATCH_VERSION 1
 static const unsigned short int VERSION[3] = {MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION};
 
-#define VERSION_STRING "\nLMVM v%u.%u.%u\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
+#define VERSION_STRING "\nLMVM v%u.%u.%u (supporting lmvm-ext %u)\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
 
 static int debug_mode;
 
@@ -54,7 +54,7 @@ static void parse_args(int argc, char **argv) {
                 puts("");
                 exit(0);
             case 'v':
-                printf(VERSION_STRING, VERSION[0], VERSION[1], VERSION[2]);
+                printf(VERSION_STRING, VERSION[0], VERSION[1], VERSION[2], EXT_SUPPORTED_VERSION);
                 break;
             case 'x':
                 // redirect stdout and stderr to nowhere
@@ -87,11 +87,11 @@ static void parse_args(int argc, char **argv) {
 // jvm hotspot interprets and then switches to JIT if a method is called a lot
 
 // SPECIAL REGISTERS
-static unsigned short int reg_PC = 0; // program counter
-static unsigned short int reg_ACC = 0; // accumulator
-static unsigned short int reg_CIR = 0; // current instruction register
-static unsigned short int reg_MAR = 0; // memory address register
-static unsigned short int reg_MDR = 0; // memory data register
+//static unsigned short int reg_PC = 0; // program counter
+//static unsigned short int reg_ACC = 0; // accumulator
+//static unsigned short int reg_CIR = 0; // current instruction register
+//static unsigned short int reg_MAR = 0; // memory address register
+//static unsigned short int reg_MDR = 0; // memory data register
 
 
 int main(int argc, char **argv) {
