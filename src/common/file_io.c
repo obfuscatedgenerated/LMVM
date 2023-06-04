@@ -67,6 +67,7 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
         result->data_size = remaining_file_size;
         result->ext_version = ext_version;
 
+        free(read_magic_string);
         return result;
     }
 
@@ -88,10 +89,12 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
         result->data_size = remaining_file_size;
         result->ext_version = 0;
 
+        free(read_magic_string);
         return result;
     }
 
     // close the file and return null if the magic string is not valid
+    free(read_magic_string);
     fclose(file);
     return NULL;
 }

@@ -135,6 +135,9 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    fputs("DEBUG: Free lmcx data\n", debugout);
+    free(lmcx->data);
+
     fputs("DEBUG: Free lmcx\n", debugout);
     free(lmcx);
 
