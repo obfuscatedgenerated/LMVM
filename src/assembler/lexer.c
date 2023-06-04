@@ -234,7 +234,7 @@ token_ll_node_st *lex(char *code) {
     // compile a regex to check if the line only contains whitespace (used later)
     int reg_comp_result = regcomp(&line_whitespace_regex, "^[[:space:]]*$", 0);
     if (reg_comp_result != 0) {
-        fputs("Fatal Internal Error: Could not compile line_whitespace_regex.", stderr);
+        fputs("Internal Error: Could not compile line_whitespace_regex.", stderr);
         exit(1);
     }
 

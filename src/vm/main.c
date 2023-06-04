@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
     // check for input file
     fputs("DEBUG: Input file check\n", debugout);
     if (infile_path == NULL) {
-        fputs("No input file specified\n", stderr);
+        fputs("Error: No input file specified\n", stderr);
         fprintf(stderr, "\nUsage: ");
         fprintf(stderr, USAGE_STRING, argv[0]);
         exit(1);
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
 
     // check input file exists
     if (!file_exists_and_accessible(infile_path)) {
-        fprintf(stderr, "Input file '%s' does not exist or cannot be opened\n", infile_path);
+        fprintf(stderr, "Error: Input file '%s' does not exist or cannot be opened\n", infile_path);
         exit(1);
     }
 
