@@ -100,3 +100,13 @@ count   DAT 0
 one     DAT 1
 five    DAT 5
 ```
+
+## Building from source
+
+1. Clone the repository: `git clone https://github.com/obfuscatedgenerated/LMVM.git`
+2. Change directory: `cd LMVM`
+3. Create a build directory: `mkdir build`
+4. Change directory: `cd build`
+5. Run CMake generation: `cmake ..` (you can force a specific generator with the `-G <generator>` option, enable release mode with `-DCMAKE_BUILD_TYPE=Release`)
+6. Build the project: `cmake --build .` (you can specify a specific target with the `--target <target>` option)
+7. Optional: create installers with CPack: `cpack` (you can specify a specific generator with the `-G <generator>` option, enable release mode with `-C Release`)
