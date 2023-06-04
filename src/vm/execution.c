@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <limits.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 
 static void op_add(
