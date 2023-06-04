@@ -167,6 +167,7 @@ int do_execution(void) {
 }
 
 // TODO: give debugout to other modules
+// TODO: need to do a null check on every malloc, calloc, and realloc
 
 int main(int argc, char **argv) {
     parse_args(argc, argv);
