@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <errno.h>
 
 
 static void op_add(
@@ -134,7 +135,7 @@ static void op_inp(
     // get number of digits to accept
     static int accept_digits = -1;
 
-    if (accept_digits != -1) {
+    if (accept_digits == -1) {
         int max_digits = 0;
         int min_digits = 0;
 
@@ -162,14 +163,13 @@ static void op_inp(
     // read user input up to the number of digits
     int input;
     while (1) {
-        char *in_buf = malloc(sizeof(char) * (accept_digits + 1));
+        char in_buf[accept_digits + 1];
 
-        if (fgets(in_buf, accept_digits + 1, stdin) == NULL) {
-            fprintf(stderr, "Error: Failed to read user input\n");
-            *result = EXECUTION_ERROR;
+        if (fgets(in_buf, accept_digits + 1, stdin) == NULL && errno != 0) {
+            fprintf(stderr, "Invalid input: failed to read\n");
+            fprintf(stderr, "Errno: %d\n", errno);
 
-            free(in_buf);
-            return;
+            continue;
         }
 
         // check input is a valid number
@@ -178,15 +178,12 @@ static void op_inp(
 
         if (end_ptr == in_buf) {
             puts("Invalid input: not a number\n");
-
-            free(in_buf);
             continue;
         }
 
         // TODO: check input is within range of int. not sure how we can, have to deal with wrapping around for now
 
         // input is valid, break out of loop
-        free(in_buf);
         break;
     }
 
