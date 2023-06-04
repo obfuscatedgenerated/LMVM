@@ -11,17 +11,19 @@ static regex_t line_whitespace_regex; // global regex
 
 // define mnemonics
 static const char *mnemonics[] = {
-        "LDA",
-        "STA",
         "ADD",
         "SUB",
+        "STA",
+        "LDA",
+        "BRA",
+        "BRZ",
+        "BRP",
         "INP",
         "OUT",
         "HLT",
-        "BRZ",
-        "BRA",
-        "DAT"
+        "DAT",
 };
+#define MNEMONIC_COUNT (sizeof(mnemonics) / sizeof(mnemonics[0]))
 
 // lex the line
 static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
@@ -74,9 +76,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                 uppercase_token[i] = (char) toupper(uppercase_token[i]);
             }
 
-            int dont_free_uppercase_token = 0;
-
-            for (size_t mnemonic_idx = 0; mnemonic_idx < 9; mnemonic_idx++) {
+            for (size_t mnemonic_idx = 0; mnemonic_idx < MNEMONIC_COUNT; mnemonic_idx++) {
                 if (strcmp(uppercase_token, mnemonics[mnemonic_idx]) == 0) {
                     // mnemonic found
 
@@ -120,15 +120,13 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                     }
 
                     // set the mnemonic
-                    mnemonic = uppercase_token;
-                    dont_free_uppercase_token = 1;
+                    mnemonic = malloc(token_len + 1);
+                    memcpy(mnemonic, uppercase_token, token_len + 1);
                     break;
                 }
             }
 
-            if (!dont_free_uppercase_token) {
-                free(uppercase_token);
-            }
+            free(uppercase_token);
         } else {
             // if an operand has already been found, put error
             if (operand != NULL) {
