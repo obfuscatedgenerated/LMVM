@@ -10,7 +10,7 @@
 static regex_t line_whitespace_regex; // global regex
 
 // define mnemonics
-static char *mnemonics[] = {
+static const char *mnemonics[] = {
         "LDA",
         "STA",
         "ADD",
