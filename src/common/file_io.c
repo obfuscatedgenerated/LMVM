@@ -7,13 +7,14 @@
 #include <sys/stat.h>
 
 static int is_little_endian_machine = -1;
+
 static void detect_little_endian_machine(void) {
     if (is_little_endian_machine != -1) {
         return;
     }
 
     const unsigned int x = 1;
-    char *c = (char*) &x;
+    char *c = (char *) &x;
     is_little_endian_machine = (int) *c;
 
     // TODO: print below in debug mode only
@@ -34,69 +35,64 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
     size_t file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    // read enough bytes to get either magic string
-    size_t max_magic_length = strlen(MAGIC_STRING_LMC_EXTENDED);
-    char *read_magic_string = malloc(sizeof(char) * max_magic_length);
-    fread(read_magic_string, sizeof(char), max_magic_length, file);
+    // read enough bytes to get the largest magic string
+    size_t ext_magic_string_length = strlen(MAGIC_STRING_LMC_EXTENDED);
+    char *read_magic_string = malloc(sizeof(char) * ext_magic_string_length);
+    fread(read_magic_string, sizeof(char), ext_magic_string_length, file);
+
+    unsigned short int ext_version;
+    size_t remaining_file_size;
+    int found_magic_string = 0;
 
     // check if the magic string is the extended one
     if (strcmp(read_magic_string, MAGIC_STRING_LMC_EXTENDED) == 0) {
+        found_magic_string = 1;
+
         // read the supported ext version with correct endianness (file always stored in little endian)
-        unsigned short int ext_version;
         fread(&ext_version, sizeof(unsigned short int), 1, file);
         if (!is_little_endian_machine) {
             ext_version = (ext_version << 8) | (ext_version >> 8);
         }
 
-        // read the rest of the file with correct endianness (file always stored in little endian)
-        size_t remaining_file_size = file_size - max_magic_length - sizeof(unsigned short int);
-        unsigned short int *data = malloc(sizeof(unsigned short int) * remaining_file_size);
-        fread(data, sizeof(unsigned short int), remaining_file_size, file);
-        if (!is_little_endian_machine) {
-            for (size_t i = 0; i < remaining_file_size; i++) {
-                data[i] = (data[i] << 8) | (data[i] >> 8);
-            }
+        // set the remaining file size
+        remaining_file_size = file_size - ext_magic_string_length - sizeof(unsigned short int);
+    }
+
+    if (!found_magic_string) {
+        // trim read_magic_string to the length of MAGIC_STRING_LMC for comparison
+        size_t magic_string_lmc_length = strlen(MAGIC_STRING_LMC);
+        read_magic_string[magic_string_lmc_length] = '\0';
+
+        // check if the magic string is the standard one
+        if (strcmp(read_magic_string, MAGIC_STRING_LMC) != 0) {
+            // close the file and return null if the magic string is not valid
+            free(read_magic_string);
+            fclose(file);
+            return NULL;
         }
 
-        fclose(file);
+        // seek back to where the standard magic string ends for further reading
+        fseek(file, (long) magic_string_lmc_length, SEEK_SET);
 
-
-        // create the result
-        lmcx_file_descriptor_st *result = malloc(sizeof(lmcx_file_descriptor_st));
-        result->data = data;
-        result->data_size = remaining_file_size;
-        result->ext_version = ext_version;
-
-        free(read_magic_string);
-        return result;
+        // standard magic string found, set the ext version to 0 and set the remaining file size
+        ext_version = 0;
+        remaining_file_size = file_size - magic_string_lmc_length;
     }
 
-    // trim read_magic_string to the length of MAGIC_STRING_LMC for comparison
-    read_magic_string[strlen(MAGIC_STRING_LMC)] = '\0';
+    // read the rest of the file
+    unsigned short int *data = malloc(sizeof(unsigned short int) * remaining_file_size);
+    fread(data, sizeof(unsigned short int), remaining_file_size, file);
 
-    // check if the magic string is the standard one
-    if (strcmp(read_magic_string, MAGIC_STRING_LMC) == 0) {
-        // read the rest of the file
-        size_t remaining_file_size = file_size - max_magic_length;
-        unsigned short int *data = malloc(sizeof(unsigned short int) * remaining_file_size);
-        fread(data, sizeof(unsigned short int), remaining_file_size, file);
-
-        fclose(file);
-
-        // create the result
-        lmcx_file_descriptor_st *result = malloc(sizeof(lmcx_file_descriptor_st));
-        result->data = data;
-        result->data_size = remaining_file_size;
-        result->ext_version = 0;
-
-        free(read_magic_string);
-        return result;
-    }
-
-    // close the file and return null if the magic string is not valid
-    free(read_magic_string);
     fclose(file);
-    return NULL;
+
+    // create the result
+    lmcx_file_descriptor_st *result = malloc(sizeof(lmcx_file_descriptor_st));
+    result->data = data;
+    result->data_size = remaining_file_size;
+    result->ext_version = 0;
+
+    free(read_magic_string);
+    return result;
 }
 
 char *read_text_file(char *path) {
