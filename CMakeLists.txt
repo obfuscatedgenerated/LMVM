@@ -8,6 +8,12 @@ file(GLOB_RECURSE ASM_SOURCES ${PROJECT_SOURCE_DIR}/src/assembler/*.c)
 file(GLOB_RECURSE VM_SOURCES ${PROJECT_SOURCE_DIR}/src/vm/*.c)
 file(GLOB_RECURSE COMMON_SOURCES ${PROJECT_SOURCE_DIR}/src/common/*.c)
 
+# add icon resource if windows
+IF (WIN32)
+    set(ASM_SOURCES ${ASM_SOURCES} ${PROJECT_SOURCE_DIR}/src/assembler/icon.rc)
+    set(VM_SOURCES ${VM_SOURCES} ${PROJECT_SOURCE_DIR}/src/vm/icon.rc)
+ENDIF()
+
 # include header files
 include_directories(${PROJECT_SOURCE_DIR}/include)
 

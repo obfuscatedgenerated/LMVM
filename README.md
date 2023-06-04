@@ -107,6 +107,7 @@ five    DAT 5
 2. Change directory: `cd LMVM`
 3. Create a build directory: `mkdir build`
 4. Change directory: `cd build`
-5. Run CMake generation: `cmake ..` (you can force a specific generator with the `-G <generator>` option, enable release mode with `-DCMAKE_BUILD_TYPE=Release`)
+5. Run CMake generation: `cmake ..` (you can force a specific generator with the `-G <generator>` option, enable release mode with `-DCMAKE_BUILD_TYPE=Release`)<br>
+By default, CPack installer data will be generated. This requires pandoc to be installed. To disable installer generation, pass `-DINSTALLER=OFF` to CMake.
 6. Build the project: `cmake --build .` (you can specify a specific target with the `--target <target>` option)
 7. Optional: create installers with CPack: `cpack` (you can specify a specific generator with the `-G <generator>` option, enable release mode with `-C Release`)
