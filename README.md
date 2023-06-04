@@ -74,7 +74,6 @@ Additionally, these arguments are available:
 
 | Short arg  | Long arg           | Description               |
 |------------|--------------------|---------------------------|
-| -l \<file> | --log-file \<file> | Log file                  |
 | -h         | --help             | Display help              |
 | -v         | --version          | Display version           |
 | -d         | --debug            | Enable debug mode         |
