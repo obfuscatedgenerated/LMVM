@@ -25,6 +25,13 @@ static int no_overwrite_mode;
 static char *infile_path = NULL;
 static char *outfile_path = NULL;
 
+static const char *NULL_DEVICE =
+#ifdef _WIN32
+        "NUL";
+#else
+        "/dev/null";
+#endif
+
 static FILE *debugout = NULL;
 
 #define USAGE_STRING "%s [-h | --help] INFILE [-o | --output OUTFILE] [optional-flags]\n"
@@ -67,14 +74,9 @@ static void parse_args(int argc, char **argv) {
                 printf(VERSION_STRING, VERSION[0], VERSION[1], VERSION[2]);
                 break;
             case 'x':
-                // redirect stdout and stderr to nowhere cross-platform
-#ifdef _WIN32
-                freopen("NUL", "w", stdout);
-                freopen("NUL", "w", stderr);
-#else
-                freopen("/dev/null", "w", stdout);
-                freopen("/dev/null", "w", stderr);
-#endif
+                // redirect stdout and stderr to nowhere
+                freopen(NULL_DEVICE, "w", stdout);
+                freopen(NULL_DEVICE, "w", stderr);
                 break;
             case 1:
                 infile_path = optarg;
@@ -101,11 +103,7 @@ static void parse_args(int argc, char **argv) {
     if (debug_mode) {
         debugout = stdout;
     } else {
-#ifdef _WIN32
-        debugout = fopen("NUL", "w");
-#else
-        debugout = fopen("/dev/null", "w");
-#endif
+        debugout = fopen(NULL_DEVICE, "w");
     }
 }
 
