@@ -40,7 +40,12 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
     // convert each token into the machine code
     token_ll_node_st *current = tokens_head;
     size_t index = 0;
-    while (current != NULL && index < EXECUTABLE_SIZE - 1) {
+    while (current != NULL) {
+        if (index >= EXECUTABLE_SIZE) {
+            fprintf(stderr, "Internal Error: execgen passed too many instruction tokens\n");
+            return NULL;
+        }
+
         char *mnemonic = current->token->mnemonic;
 
         // c doesn't have a switch statement for strings, so we have to use if else ladders

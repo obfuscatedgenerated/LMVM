@@ -1,4 +1,5 @@
 #include "assembler/lexer.h"
+#include "common/executable_props.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -241,6 +242,7 @@ token_ll_node_st *lex(char *code) {
     // create a linked list to store the tokens, setting the current node to the head
     token_ll_node_st *head_token = NULL;
     token_ll_node_st **current_token = &head_token;
+    unsigned int pushed_tokens = 0;
 
     // run line-by-line lexing by splitting by newlines
     char *strmax;
@@ -264,7 +266,13 @@ token_ll_node_st *lex(char *code) {
 
         // push the token to the linked list
         if (res.value.token != NULL) {
+            if (pushed_tokens >= EXECUTABLE_SIZE) {
+                fputs("Error: Program is too large to fit in memory.", stderr);
+                exit(1);
+            }
+
             push_to_tokens(current_token, res.value.token);
+            pushed_tokens++;
         }
 
         // use strtok_r to keep context across the scope of the loop
