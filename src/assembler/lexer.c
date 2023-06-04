@@ -15,6 +15,7 @@ static char *mnemonics[] = {
         "STA",
         "ADD",
         "SUB",
+        "INP",
         "OUT",
         "HLT",
         "BRZ",
