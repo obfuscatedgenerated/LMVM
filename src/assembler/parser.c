@@ -194,10 +194,14 @@ static int validate_numerical_operands(token_ll_node_st *tokens_head) {
             }
         }
 
-        // if the operand is numerical, check it is between 0 and 99
+        // if the operand is numerical, check it is between 0 and 99, or 0 to 999 for DAT
+        char *mnemonic = current->token->mnemonic;
+        int is_dat = strcmp(mnemonic, "DAT") == 0;
+
+        int max_value = is_dat ? 999 : 99;
         int value = (int) strtol(current->token->operand, NULL, 10);
-        if (value < 0 || value > 99) {
-            fprintf(stderr, "Error: operand \"%s\" near line %zu is not between 0 and 99. Line has mnemonic: %s\n", current->token->operand, line_idx, current->token->mnemonic);
+        if (value < 0 || value > max_value) {
+            fprintf(stderr, "Error: operand \"%s\" near line %zu is not between 0 and %d. Line has mnemonic: %s\n", current->token->operand, line_idx, max_value, mnemonic);
             return 1;
         }
 

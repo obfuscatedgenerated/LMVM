@@ -83,14 +83,17 @@ unsigned short int *generate_executable(token_ll_node_st *tokens_head, kv_dict *
             // TODO: print below in debug mode only
             //printf("string operand: %s value: %zu\n", operand_str, operand_value);
 
-            // check operand is in range
-            if (operand_value > 99) {
-                fprintf(stderr, "Internal Error: operand \"%s\" is greater than 99, but validator allowed it\n", operand_str);
+            int is_dat = strcmp(mnemonic, "DAT") == 0;
+
+            // DATs can go up to 999, otherwise 99
+            unsigned int max_operand_value = is_dat ? 999 : 99;
+            if (operand_value > max_operand_value) {
+                fprintf(stderr, "Internal Error: operand \"%s\" is larger than %u, but validator allowed it\n", operand_str, max_operand_value);
                 return NULL;
             }
 
             // if the mnemonic is DAT, simply write the operand value to the executable
-            if (strcmp(mnemonic, "DAT") == 0) {
+            if (is_dat) {
                 executable[index] = operand_value;
 
                 index++;

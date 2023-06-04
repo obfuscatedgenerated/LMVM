@@ -65,6 +65,8 @@ Additionally, these arguments are available:
 | -s         | --strict         | Strict mode. Treat warnings as errors.                                                                            |
 | -x         | --silent         | Silent mode. Don't print anything to stdout or stderr.                                                            |
 
+<!-- TODO: option to allow large or negative operands -->
+
 ### Virtual machine
 
 The first positional argument is the file to execute. It is **required**.<br />
