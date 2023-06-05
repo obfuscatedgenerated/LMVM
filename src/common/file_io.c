@@ -1,6 +1,6 @@
 #include "common/file_io.h"
 #include "common/executable_props.h"
-#include "checked_alloc.h"
+#include "common/checked_alloc.h"
 
 #include <stdlib.h>
 #include <string.h>

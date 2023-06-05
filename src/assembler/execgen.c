@@ -3,7 +3,7 @@
 #include "assembler/parser.h"
 #include "common/executable_props.h"
 #include "common/opcodes.h"
-#include "checked_alloc.h"
+#include "common/checked_alloc.h"
 
 #include <stdlib.h>
 #include <string.h>

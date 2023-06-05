@@ -1,4 +1,4 @@
-#include "checked_alloc.h"
+#include "common/checked_alloc.h"
 
 #include <stdlib.h>
 #include <stdio.h>

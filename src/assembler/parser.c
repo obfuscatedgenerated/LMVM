@@ -3,7 +3,7 @@
 #include "assembler/parser.h"
 #include "assembler/lexer.h"
 #include "common/hashtable/kv_dict.h"
-#include "checked_alloc.h"
+#include "common/checked_alloc.h"
 
 #include <stdlib.h>
 #include <string.h>

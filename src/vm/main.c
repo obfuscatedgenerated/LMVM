@@ -5,7 +5,7 @@
 #include "common/file_io.h"
 #include "common/executable_props.h"
 #include "vm/execution.h"
-#include "checked_alloc.h"
+#include "common/checked_alloc.h"
 
 // TODO: consider moving some parsing to common
 #ifndef VERSION_MAJOR

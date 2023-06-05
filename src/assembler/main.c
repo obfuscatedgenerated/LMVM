@@ -3,7 +3,7 @@
 #include "assembler/execgen.h"
 #include "common/executable_props.h"
 #include "common/file_io.h"
-#include "checked_alloc.h"
+#include "common/checked_alloc.h"
 
 #include <string.h>
 #include <stdlib.h>

@@ -1,6 +1,6 @@
 #include "assembler/lexer.h"
 #include "common/executable_props.h"
-#include "checked_alloc.h"
+#include "common/checked_alloc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
