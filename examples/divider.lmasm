@@ -1,23 +1,23 @@
 ; Program to safely double the user input without erroring
 
-entry	INP		; get user input
+entry	INP		    ; get user input
 
-	BRP	check	; check not negative
-	BRA	entry
+	    BRP	check	; check not negative
+	    BRA	entry
 
 ; therefore the value is >= 0
-check	SUB	max	; check if will exceed max allowed
-	SUB	one
-	BRP	entry
-	ADD	one	; revert subtraction for range check
-	ADD	max
+check	SUB	max	    ; check if will exceed max allowed
+        SUB	one
+	    BRP	entry
+	    ADD	one	    ; revert subtraction for range check
+	    ADD	max
 
 ; therefore the value is within 0-999, so can be safely STA'd to double
-	STA	tmp
-	ADD	tmp
-	OUT
-	BRA	entry
+	    STA	tmp
+	    ADD	tmp
+	    OUT
+	    BRA	entry
 
-tmp	DAT	0
-one	DAT	1
-max	DAT	999
+tmp  	DAT	0
+one	    DAT	1
+max	    DAT	999
