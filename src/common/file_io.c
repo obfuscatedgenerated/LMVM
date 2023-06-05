@@ -2,7 +2,6 @@
 #include "common/executable_props.h"
 #include "common/checked_alloc.h"
 
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>

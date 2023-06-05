@@ -115,7 +115,7 @@ static void parse_args(int argc, char **argv) {
     }
 }
 
-static void check_output_path(char *outfile_path) {
+static void check_output_path(void) {
     // check if the output file is a directory
     if (is_dir(outfile_path)) {
         fprintf(stderr, "Error: Output file '%s' is a directory\n", outfile_path);
@@ -132,7 +132,7 @@ static void check_output_path(char *outfile_path) {
 static void resolve_output_path(void) {
     // validate the output file if specified
     if (outfile_path != NULL) {
-        check_output_path(outfile_path);
+        check_output_path();
 
         return;
     }
@@ -182,7 +182,7 @@ static void resolve_output_path(void) {
     checked_free(outfile_name);
     //checked_free(infile_name);
 
-    check_output_path(outfile_path);
+    check_output_path();
 }
 
 // TODO: give debugout to other modules
