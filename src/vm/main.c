@@ -90,40 +90,32 @@ static void parse_args(int argc, char **argv) {
     }
 }
 
+
 // for now, the VM is just going to interpret the bytecode
 // we might add a JIT compiler later (or direct translation to native asm/machine code), but that's a little overengineered for now
 // jvm hotspot interprets and then switches to JIT if a method is called a lot
 
-// TODO: should these be in a scope and just passed to do_execution? does it matter?
-
-// SPECIAL REGISTERS
-static unsigned short int reg_PC = 0; // program counter
-static int reg_ACC = 0; // accumulator
-static unsigned short int reg_CIR = 0; // current instruction register
-static unsigned short int reg_MAR = 0; // memory address register
-// MDR isn't needed since we can simply access memory[reg_MAR] directly
-
-// MEMORY ARRAY
-static unsigned short int memory[EXECUTABLE_SIZE] = {0};
-
 
 // returns 0 if execution was successful, 1 if there was an error
-int do_execution(void) {
+int do_execution(unsigned short int memory[EXECUTABLE_SIZE]) {
+    int reg_ACC = 0; // accumulator
+    unsigned short int reg_PC = 0; // program counter
+    // MDR isn't needed since we can simply access memory[reg_MAR] directly
+
     execution_result_et result = EXECUTION_INDETERMINATE;
 
     while (result != EXECUTION_HALT && result != EXECUTION_ERROR) {
         // fetch
         // a real computer would go via the MAR and MDR, but we can go straight from RAM to CIR
-        // TODO: CIR can be reduced down to scoped variable (instruction)
-        reg_CIR = memory[reg_PC];
+        unsigned short int reg_CIR = memory[reg_PC];  // current instruction register
 
         fprintf(debugout, "DEBUG: CIR = %u\n", reg_CIR);
 
 
         // decode
+        // opcode is first digit, operand is last two digits (stored to MAR)
         lmc_opcode_et opcode = (lmc_opcode_et) (reg_CIR / 100);
-        // TODO: MAR can be reduced down to scoped variable (operand)
-        reg_MAR = reg_CIR % 100;
+        unsigned short int reg_MAR = reg_CIR % 100; // memory address register
 
         // check operand in range
         if (reg_MAR > 99) {
@@ -221,6 +213,8 @@ int main(int argc, char **argv) {
     }
 
     fputs("DEBUG: Load into memory\n", debugout);
+
+    unsigned short int memory[EXECUTABLE_SIZE] = {0};
     memcpy(memory, lmcx->data, EXECUTABLE_SIZE);
 
 
@@ -233,7 +227,7 @@ int main(int argc, char **argv) {
 
     fputs("DEBUG: Start execution\n", debugout);
 
-    int exit_code = do_execution();
+    int exit_code = do_execution(memory);
     fprintf(debugout, "DEBUG: Execution finished with exit code %d\n", exit_code);
 
     return exit_code;

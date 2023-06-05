@@ -52,5 +52,3 @@ endif()
 
 # make installer
 include(scripts/make_installer.cmake)
-
-# TODO: set VERSION in main based on git tag
