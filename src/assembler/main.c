@@ -102,7 +102,6 @@ static void parse_args(int argc, char **argv) {
                 break;
             case '?':
             case ':':
-            default:
                 printf(USAGE_STRING, argv[0]);
                 exit(1);
         }
@@ -116,20 +115,24 @@ static void parse_args(int argc, char **argv) {
     }
 }
 
+static void check_output_path(char *outfile_path) {
+    // check if the output file is a directory
+    if (is_dir(outfile_path)) {
+        fprintf(stderr, "Error: Output file '%s' is a directory\n", outfile_path);
+        exit(1);
+    }
+
+    // check if the file already exists
+    if (no_overwrite_mode && file_exists_and_accessible(outfile_path)) {
+        fprintf(stderr, "Error: Output file '%s' already exists and no-overwrite mode is enabled\n", outfile_path);
+        exit(1);
+    }
+}
+
 static void resolve_output_path(void) {
     // validate the output file if specified
     if (outfile_path != NULL) {
-        // check if the output file is a directory
-        if (is_dir(outfile_path)) {
-            fprintf(stderr, "Error: Output file '%s' is a directory\n", outfile_path);
-            exit(1);
-        }
-
-        // check if the file already exists
-        if (no_overwrite_mode && file_exists_and_accessible(outfile_path)) {
-            fprintf(stderr, "Error: Output file '%s' already exists and no-overwrite mode is enabled\n", outfile_path);
-            exit(1);
-        }
+        check_output_path(outfile_path);
 
         return;
     }
@@ -160,7 +163,7 @@ static void resolve_output_path(void) {
     size_t cwd_len = strlen(cwd);
 
     outfile_path = checked_malloc(cwd_len + strlen(outfile_name) + 2);
-    memcpy(outfile_path, cwd, cwd_len);
+    memcpy(outfile_path, cwd, cwd_len + 1);
 
     // add a slash if needed, use backslash on windows
     char slash = '/';
@@ -178,6 +181,8 @@ static void resolve_output_path(void) {
     checked_free(cwd);
     checked_free(outfile_name);
     //checked_free(infile_name);
+
+    check_output_path(outfile_path);
 }
 
 // TODO: give debugout to other modules

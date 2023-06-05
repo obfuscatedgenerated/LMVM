@@ -76,7 +76,8 @@ static void parse_args(int argc, char **argv) {
                 // flag not set if using short form
                 debug_mode = 1;
                 break;
-            case '?': case ':': default:
+            case '?':
+            case ':':
                 printf(USAGE_STRING, argv[0]);
                 exit(1);
         }
