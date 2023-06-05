@@ -1,27 +1,23 @@
 #include "common/hashtable/kv_dict.h"
 #include "common/hashtable/fnv1a.h"
+#include "checked_alloc.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
 kv_dict *new_dict() {
-    kv_dict *dict = malloc(sizeof(kv_dict));
-
-    // check success
-    if (dict == NULL) {
-        return NULL;
-    }
+    kv_dict *dict = checked_malloc(sizeof(kv_dict));
 
     dict->size = 0;
     dict->capacity = INIT_CAPACITY;
 
     // allocate entry space and zero it out
-    dict->entries = calloc(dict->capacity, sizeof(kv_entry));
+    dict->entries = checked_calloc(dict->capacity, sizeof(kv_entry));
 
     // check success
     if (dict->entries == NULL) {
-        free(dict);
+        checked_free(dict);
         return NULL;
     }
 
@@ -31,16 +27,13 @@ kv_dict *new_dict() {
 void free_dict(kv_dict *dict) {
     // TODO: free each entry. ive spent like an hour trying to make it work
     // iterating each entry and freeing it causes a corruption error
-    free(dict->entries);
-    free(dict);
+    checked_free(dict->entries);
+    checked_free(dict);
 }
 
 static void raw_set(kv_entry *entries, size_t capacity, void *key, size_t key_size, void *value) {
     // create a new entry
-    kv_entry *entry = malloc(sizeof(kv_entry));
-
-    // ensure success
-    assert(entry != NULL);
+    kv_entry *entry = checked_malloc(sizeof(kv_entry));
 
     entry->key = key;
     entry->value = value;
@@ -76,10 +69,7 @@ static void raw_set(kv_entry *entries, size_t capacity, void *key, size_t key_si
 static void expand(kv_dict *dict) {
     size_t new_capacity = dict->capacity * 2;
 
-    kv_entry *new_entries = calloc(dict->capacity, sizeof(kv_entry));
-
-    // ensure success
-    assert(new_entries != NULL);
+    kv_entry *new_entries = checked_calloc(dict->capacity, sizeof(kv_entry));
 
     // migrate old non-null entries
     for (size_t i = 0; i < dict->capacity; i++) {
@@ -91,7 +81,7 @@ static void expand(kv_dict *dict) {
     }
 
     // free old entries
-    free(dict->entries);
+    checked_free(dict->entries);
 
     dict->entries = new_entries;
     dict->capacity = new_capacity;

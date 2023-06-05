@@ -3,6 +3,7 @@
 #include "assembler/parser.h"
 #include "assembler/lexer.h"
 #include "common/hashtable/kv_dict.h"
+#include "checked_alloc.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -60,11 +61,11 @@ label_validation_result_et validate_label_name(char *label, label_doubly_ll_node
 
 static void push_known_label(char *label, label_doubly_ll_node_st **known_labels_current) {
     // allocate memory for the new node
-    label_doubly_ll_node_st *new_node = malloc(sizeof(label_doubly_ll_node_st));
+    label_doubly_ll_node_st *new_node = checked_malloc(sizeof(label_doubly_ll_node_st));
 
     // copy label, or else reference to label will be lost when tokens are freed
     size_t label_len = strlen(label) + 1;
-    char *label_copy = malloc(label_len);
+    char *label_copy = checked_malloc(label_len);
     memcpy(label_copy, label, label_len);
 
     new_node->label = label_copy;
@@ -116,12 +117,12 @@ static kv_dict *parse_labels(token_ll_node_st *tokens_head) {
             push_known_label(current->token->label, &known_labels_current);
 
             // push the label and memory address (of the instruction) to the hash table
-            size_t *heap_mem_idx = malloc(sizeof(size_t));
+            size_t *heap_mem_idx = checked_malloc(sizeof(size_t));
             *heap_mem_idx = mem_idx;
 
             // copy label, or else reference to label will be lost when tokens are freed
             size_t label_len = strlen(current->token->label) + 1;
-            char *label_copy = malloc(label_len);
+            char *label_copy = checked_malloc(label_len);
             memcpy(label_copy, current->token->label, label_len);
 
             set_item(label_to_address_dict, label_copy, label_len, heap_mem_idx);
@@ -158,8 +159,8 @@ static kv_dict *parse_labels(token_ll_node_st *tokens_head) {
         label_doubly_ll_node_st *next = known_labels_current->previous;
         // TODO: debug print below
         //printf("Freeing label %s\n", known_labels_current->label);
-        free(known_labels_current->label);
-        free(known_labels_current);
+        checked_free(known_labels_current->label);
+        checked_free(known_labels_current);
         known_labels_current = next;
     }
 

@@ -1,5 +1,6 @@
 #include "common/file_io.h"
 #include "common/executable_props.h"
+#include "checked_alloc.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -37,7 +38,7 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
 
     // read enough bytes to get the largest magic string
     size_t ext_magic_string_length = strlen(MAGIC_STRING_LMC_EXTENDED);
-    char *read_magic_string = malloc(sizeof(char) * ext_magic_string_length);
+    char *read_magic_string = checked_malloc(sizeof(char) * ext_magic_string_length);
     fread(read_magic_string, sizeof(char), ext_magic_string_length, file);
 
     unsigned short int ext_version;
@@ -66,7 +67,7 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
         // check if the magic string is the standard one
         if (strcmp(read_magic_string, MAGIC_STRING_LMC) != 0) {
             // close the file and return null if the magic string is not valid
-            free(read_magic_string);
+            checked_free(read_magic_string);
             fclose(file);
             return NULL;
         }
@@ -80,18 +81,18 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
     }
 
     // read the rest of the file
-    unsigned short int *data = malloc(sizeof(unsigned short int) * remaining_file_size);
+    unsigned short int *data = checked_malloc(sizeof(unsigned short int) * remaining_file_size);
     fread(data, sizeof(unsigned short int), remaining_file_size, file);
 
     fclose(file);
 
     // create the result
-    lmcx_file_descriptor_st *result = malloc(sizeof(lmcx_file_descriptor_st));
+    lmcx_file_descriptor_st *result = checked_malloc(sizeof(lmcx_file_descriptor_st));
     result->data = data;
     result->data_size = remaining_file_size;
     result->ext_version = 0;
 
-    free(read_magic_string);
+    checked_free(read_magic_string);
     return result;
 }
 
@@ -108,7 +109,7 @@ char *read_text_file(char *path) {
     fseek(file, 0, SEEK_SET);
 
     // read the file
-    char *data = malloc(sizeof(char) * (file_size + 1));
+    char *data = checked_malloc(sizeof(char) * (file_size + 1));
     fread(data, sizeof(char), file_size, file);
     data[file_size] = '\0';
 
@@ -161,7 +162,7 @@ write_status_et write_lmcx_file(lmcx_file_descriptor_st *lmcx, char *path, int o
     if (is_little_endian_machine) {
         fwrite(lmcx->data, sizeof(unsigned short int), lmcx->data_size, file);
     } else {
-        unsigned short int *data = malloc(sizeof(unsigned short int) * lmcx->data_size);
+        unsigned short int *data = checked_malloc(sizeof(unsigned short int) * lmcx->data_size);
         for (size_t i = 0; i < lmcx->data_size; i++) {
             data[i] = (lmcx->data[i] << 8) | (lmcx->data[i] >> 8);
         }

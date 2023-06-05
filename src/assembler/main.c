@@ -3,6 +3,7 @@
 #include "assembler/execgen.h"
 #include "common/executable_props.h"
 #include "common/file_io.h"
+#include "checked_alloc.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -35,7 +36,7 @@ static const char *NULL_DEVICE =
 #ifdef _WIN32
         "NUL";
 #else
-        "/dev/null";
+"/dev/null";
 #endif
 
 static FILE *debugout = NULL;
@@ -99,7 +100,9 @@ static void parse_args(int argc, char **argv) {
                 // flag not set if using short form
                 no_overwrite_mode = 1;
                 break;
-            case '?': case ':': default:
+            case '?':
+            case ':':
+            default:
                 printf(USAGE_STRING, argv[0]);
                 exit(1);
         }
@@ -138,7 +141,7 @@ static void resolve_output_path(void) {
 
     // copy the file name to a new buffer
     size_t infile_name_len = strlen(infile_name);
-    char *outfile_name = malloc(infile_name_len + 1);
+    char *outfile_name = checked_malloc(infile_name_len + 1);
     memcpy(outfile_name, infile_name, infile_name_len + 1);
 
     // replace the extension with .lmc
@@ -156,7 +159,7 @@ static void resolve_output_path(void) {
     char *cwd = getcwd(NULL, 0);
     size_t cwd_len = strlen(cwd);
 
-    outfile_path = malloc(cwd_len + strlen(outfile_name) + 2);
+    outfile_path = checked_malloc(cwd_len + strlen(outfile_name) + 2);
     memcpy(outfile_path, cwd, cwd_len);
 
     // add a slash if needed, use backslash on windows
@@ -172,13 +175,12 @@ static void resolve_output_path(void) {
     // copy the file name to the end of the cwd
     memcpy(outfile_path + cwd_len, outfile_name, strlen(outfile_name) + 1);
 
-    free(cwd);
-    free(outfile_name);
-    //free(infile_name);
+    checked_free(cwd);
+    checked_free(outfile_name);
+    //checked_free(infile_name);
 }
 
 // TODO: give debugout to other modules
-// TODO: need to do a null check on every malloc, calloc, and realloc
 
 int main(int argc, char **argv) {
     parse_args(argc, argv);
@@ -236,7 +238,7 @@ int main(int argc, char **argv) {
     }
 
     fputs("DEBUG: Free code buffer\n", debugout);
-    free(code_buffer);
+    checked_free(code_buffer);
 
     // generate the executable
     fputs("DEBUG: Generate executable\n", debugout);
@@ -248,20 +250,12 @@ int main(int argc, char **argv) {
     while (current != NULL) {
         token_ll_node_st *next = current->next;
 
-        if (current->token->mnemonic != NULL) {
-            free(current->token->mnemonic);
-        }
+        silent_checked_free(current->token->mnemonic);
+        silent_checked_free(current->token->operand);
+        silent_checked_free(current->token->label);
 
-        if (current->token->operand != NULL) {
-            free(current->token->operand);
-        }
-
-        if (current->token->label != NULL) {
-            free(current->token->label);
-        }
-
-        free(current->token);
-        free(current);
+        checked_free(current->token);
+        checked_free(current);
         current = next;
     }
 
@@ -276,7 +270,7 @@ int main(int argc, char **argv) {
 
     // construct lmcx descriptor
     fputs("DEBUG: Construct LMCX descriptor\n", debugout);
-    lmcx_file_descriptor_st *descriptor = malloc(sizeof(lmcx_file_descriptor_st));
+    lmcx_file_descriptor_st *descriptor = checked_malloc(sizeof(lmcx_file_descriptor_st));
     descriptor->data = executable;
 
     // TODO: trim executable size (remove trailing 0s)
@@ -292,9 +286,9 @@ int main(int argc, char **argv) {
     write_lmcx_file(descriptor, outfile_path, 1);
 
     fputs("DEBUG: Free executable\n", debugout);
-    free(executable);
+    checked_free(executable);
     fputs("DEBUG: Free descriptor\n", debugout);
-    free(descriptor);
+    checked_free(descriptor);
 
     puts("Successfully assembled executable.");
 

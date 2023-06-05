@@ -1,5 +1,6 @@
 #include "assembler/lexer.h"
 #include "common/executable_props.h"
+#include "checked_alloc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +29,7 @@ static const char *mnemonics[] = {
 // lex the line
 static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     // allocate array of tokens (up to 3)
-    char *tokens[3];
+    char *tokens[3] = {NULL, NULL, NULL};
 
     // split the line by spaces or tabs
     char *token = strtok(line, "  \t");
@@ -46,7 +47,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
         // copy the token to the array
         size_t token_len = strlen(token);
-        tokens[token_idx] = malloc(token_len + 1);
+        tokens[token_idx] = checked_malloc(token_len + 1);
         memcpy(tokens[token_idx], token, token_len + 1);
 
         // get the next token
@@ -57,7 +58,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     // always try to copy the first token to the label
     // if there is no label, this will be overwritten
     size_t label_len = strlen(tokens[0]);
-    char *label = malloc(label_len + 1);
+    char *label = checked_malloc(label_len + 1);
     memcpy(label, tokens[0], label_len + 1);
 
     char *mnemonic = NULL;
@@ -70,7 +71,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
         if (idx <= operand_idx) {
             // convert token to uppercase (case insensitive mnemonic)
             size_t token_len = strlen(tokens[idx]);
-            char *uppercase_token = malloc(token_len + 1);
+            char *uppercase_token = checked_malloc(token_len + 1);
             memcpy(uppercase_token, tokens[idx], token_len + 1);
             for (size_t i = 0; i < token_len; i++) {
                 uppercase_token[i] = (char) toupper(uppercase_token[i]);
@@ -86,7 +87,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
                         // free token array
                         for (size_t i = 0; i < token_idx; i++) {
-                            free(tokens[i]);
+                            checked_free(tokens[i]);
                         }
 
                         return (tagged_lex_result_st) {
@@ -97,7 +98,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
                     // if this is the first token, clear and NULL the label variable and decrement the operand index
                     if (idx == 0) {
-                        free(label);
+                        checked_free(label);
                         label = NULL;
 
                         operand_idx--;
@@ -109,7 +110,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
                             // free token array
                             for (size_t i = 0; i < token_idx; i++) {
-                                free(tokens[i]);
+                                checked_free(tokens[i]);
                             }
 
                             return (tagged_lex_result_st) {
@@ -120,13 +121,13 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
                     }
 
                     // set the mnemonic
-                    mnemonic = malloc(token_len + 1);
+                    mnemonic = checked_malloc(token_len + 1);
                     memcpy(mnemonic, uppercase_token, token_len + 1);
                     break;
                 }
             }
 
-            free(uppercase_token);
+            checked_free(uppercase_token);
         } else {
             // if an operand has already been found, put error
             if (operand != NULL) {
@@ -134,7 +135,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
                 // free token array
                 for (size_t i = 0; i < token_idx; i++) {
-                    free(tokens[i]);
+                    checked_free(tokens[i]);
                 }
 
                 return (tagged_lex_result_st) {
@@ -145,14 +146,14 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
 
             // set the operand
             size_t token_len = strlen(tokens[idx]);
-            operand = malloc(token_len + 1);
+            operand = checked_malloc(token_len + 1);
             memcpy(operand, tokens[idx], token_len + 1);
         }
     }
 
     // free token array
     for (size_t i = 0; i < token_idx; i++) {
-        free(tokens[i]);
+        checked_free(tokens[i]);
     }
 
     // if no mnemonic has been found, put error
@@ -165,7 +166,7 @@ static tagged_lex_result_st lex_line(char *line, size_t line_idx) {
     }
 
     // create value
-    token_st *token_struct = malloc(sizeof(token_st));
+    token_st *token_struct = checked_malloc(sizeof(token_st));
     token_struct->label = label;
     token_struct->mnemonic = mnemonic;
     token_struct->operand = operand;
@@ -239,7 +240,7 @@ static tagged_lex_result_st prepare_and_lex_line(char *line, size_t line_idx) {
 // add to the linked list of tokens
 static void push_to_tokens(token_ll_node_st **current, token_st *token) {
     // create a new node
-    token_ll_node_st *new_node = malloc(sizeof(token_ll_node_st));
+    token_ll_node_st *new_node = checked_malloc(sizeof(token_ll_node_st));
     new_node->token = token;
     new_node->next = NULL;
 
