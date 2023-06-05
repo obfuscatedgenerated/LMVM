@@ -50,6 +50,8 @@ Labels can be used as branching points, or as a name for a memory space when use
 
 ## Execution arguments
 
+<!-- TODO: either marker comment or command flag to force INP to be limited to 0-999. by default it can be between MIN_INT and MAX_INT -->
+
 ### Assembler
 
 The first positional argument is the input file to use as the entrypoint. It is **required**.<br />
