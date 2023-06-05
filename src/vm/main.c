@@ -19,7 +19,7 @@
 #endif
 static const unsigned short int VERSION[3] = {VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 
-#define VERSION_STRING "\nLMVM v%u.%u.%u (supporting lmvm-ext %u)\nA component of the Little Man Virtual Machine.\nCopyright 2023 obfuscatedgenerated\nMIT License\n\n"
+#define VERSION_STRING "\nLMVM v%u.%u.%u (supporting lmvm-ext %u)\nA component of the Little Man Virtual Machine.\nCopyright (c) 2023 obfuscatedgenerated\nMIT License\n\n"
 
 static int debug_mode;
 
