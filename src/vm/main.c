@@ -148,6 +148,7 @@ int do_execution(unsigned short int memory[EXECUTABLE_SIZE]) {
 
         // execute should never return EXECUTION_INDETERMINATE
         if (result == EXECUTION_INDETERMINATE) {
+            fputs("Internal Error: Execution returned indeterminate result\n", stderr);
             result = EXECUTION_ERROR;
         }
 
