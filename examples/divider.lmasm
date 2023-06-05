@@ -12,7 +12,7 @@ check	SUB	max	; check if will exceed max allowed
 	ADD	one	; revert subtraction for range check
 	ADD	max
 
-; therefore the value is within 0-499, so can be safely STA'd to double
+; therefore the value is within 0-999, so can be safely STA'd to double
 	STA	tmp
 	ADD	tmp
 	OUT
@@ -20,4 +20,4 @@ check	SUB	max	; check if will exceed max allowed
 
 tmp	DAT	0
 one	DAT	1
-max	DAT	499
+max	DAT	999
