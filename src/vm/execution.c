@@ -10,7 +10,6 @@
 static void op_add(
         unsigned short int mdr,
         int *reg_ACC,
-        unsigned short int *reg_PC,
         execution_result_et *result
 ) {
     // check value will stay within range of int
@@ -23,7 +22,6 @@ static void op_add(
     // doesn't need to stay within 0-999, this will be checked when STA is executed
 
     *reg_ACC += mdr;
-    *reg_PC += 1;
 
     *result = EXECUTION_SUCCESS_ACC_CHANGED;
 }
@@ -31,7 +29,6 @@ static void op_add(
 static void op_sub(
         unsigned short int mdr,
         int *reg_ACC,
-        unsigned short int *reg_PC,
         execution_result_et *result
 ) {
     // check value will stay within range of int
@@ -44,7 +41,6 @@ static void op_sub(
     // doesn't need to stay within 0-999, this will be checked when STA is executed
 
     *reg_ACC -= mdr;
-    *reg_PC += 1;
 
     *result = EXECUTION_SUCCESS_ACC_CHANGED;
 }
@@ -53,7 +49,6 @@ static void op_sub(
 static void op_sta(
         const unsigned short int *reg_MAR,
         const int *reg_ACC,
-        unsigned short int *reg_PC,
         execution_result_et *result,
         unsigned short int *memory
 ) {
@@ -65,7 +60,6 @@ static void op_sta(
     }
 
     memory[*reg_MAR] = *reg_ACC;
-    *reg_PC += 1;
 
     *result = EXECUTION_SUCCESS_ACC_UNCHANGED;
 }
@@ -73,12 +67,10 @@ static void op_sta(
 static void op_lda(
         const unsigned short int *reg_MAR,
         int *reg_ACC,
-        unsigned short int *reg_PC,
         execution_result_et *result,
         const unsigned short int *memory
 ) {
     *reg_ACC = memory[*reg_MAR];
-    *reg_PC += 1;
 
     *result = EXECUTION_SUCCESS_ACC_CHANGED;
 }
@@ -103,7 +95,6 @@ static void op_brz(
     if (*reg_ACC == 0) {
         op_bra(reg_MAR, reg_PC, result);
     } else {
-        *reg_PC += 1;
         *result = EXECUTION_SUCCESS_ACC_UNCHANGED;
     }
 }
@@ -117,7 +108,6 @@ static void op_brp(
     if (*reg_ACC >= 0) {
         op_bra(reg_MAR, reg_PC, result);
     } else {
-        *reg_PC += 1;
         *result = EXECUTION_SUCCESS_ACC_UNCHANGED;
     }
 }
@@ -125,7 +115,6 @@ static void op_brp(
 
 static void op_inp(
         int *reg_ACC,
-        unsigned short int *reg_PC,
         execution_result_et *result
 ) {
     // TODO: this op will accept the range of ACC, but this wont be guaranteed to be within 0-999
@@ -191,18 +180,15 @@ static void op_inp(
     }
 
     *reg_ACC = input;
-    *reg_PC += 1;
 
     *result = EXECUTION_SUCCESS_ACC_CHANGED;
 }
 
 static void op_out(
         const int *reg_ACC,
-        unsigned short int *reg_PC,
         execution_result_et *result
 ) {
     printf("%d\n", *reg_ACC);
-    *reg_PC += 1;
 
     *result = EXECUTION_SUCCESS_ACC_UNCHANGED;
 }
@@ -222,16 +208,16 @@ execution_result_et execute(
 
     switch (opcode) {
         case OP_LMC_ADD:
-            op_add(mdr, reg_ACC, reg_PC, &result);
+            op_add(mdr, reg_ACC, &result);
             break;
         case OP_LMC_SUB:
-            op_sub(mdr, reg_ACC, reg_PC, &result);
+            op_sub(mdr, reg_ACC, &result);
             break;
         case OP_LMC_STA:
-            op_sta(reg_MAR, reg_ACC, reg_PC, &result, memory);
+            op_sta(reg_MAR, reg_ACC, &result, memory);
             break;
         case OP_LMC_LDA:
-            op_lda(reg_MAR, reg_ACC, reg_PC, &result, memory);
+            op_lda(reg_MAR, reg_ACC, &result, memory);
             break;
         case OP_LMC_BRA:
             op_bra(reg_MAR, reg_PC, &result);
@@ -243,10 +229,10 @@ execution_result_et execute(
             op_brp(reg_MAR, reg_ACC, reg_PC, &result);
             break;
         case OP_LMC_IO_OP_INP:
-            op_inp(reg_ACC, reg_PC, &result);
+            op_inp(reg_ACC, &result);
             break;
         case OP_LMC_IO_OP_OUT:
-            op_out(reg_ACC, reg_PC, &result);
+            op_out(reg_ACC, &result);
             break;
         case OP_LMC_HLT:
             result = EXECUTION_HALT;

@@ -109,6 +109,12 @@ int do_execution(unsigned short int memory[EXECUTABLE_SIZE]) {
         // fetch
         // a real computer would go via the MAR and MDR, but we can go straight from RAM to CIR
         unsigned short int reg_CIR = memory[reg_PC];  // current instruction register
+        reg_PC++;
+
+        if (reg_PC > EXECUTABLE_SIZE) {
+            fprintf(stderr, "Error: Program counter out of range: %u\n", reg_PC);
+            result = EXECUTION_ERROR;
+        }
 
         fprintf(debugout, "DEBUG: CIR = %u\n", reg_CIR);
 
