@@ -159,6 +159,14 @@ int do_execution(unsigned short int memory[EXECUTABLE_SIZE]) {
             result = EXECUTION_ERROR;
         }
 
+        // check PC change in range
+        if (result == EXECUTION_SUCCESS_BRANCHED) {
+            if (reg_PC > EXECUTABLE_SIZE) {
+                fprintf(stderr, "Error: Program counter out of range: %u\n", reg_PC);
+                result = EXECUTION_ERROR;
+            }
+        }
+
         if (result == EXECUTION_ERROR) {
             fprintf(stderr, "Error occurred with PC = %u CIR = %u\n", reg_PC, reg_CIR);
         }
