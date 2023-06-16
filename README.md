@@ -1,5 +1,9 @@
 # Little Man Virtual Machine
 
+<p align="center">
+    <img src="images/base_icon.png" alt="LMVM logo" width="256" height="256">
+</p>
+
 > Did you mean: [LLVM](https://llvm.org/)? 🙄
 
 **A compiler + virtual machine to execute LMC assembly on your computer.**
