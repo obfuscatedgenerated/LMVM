@@ -26,7 +26,6 @@ static const unsigned short int VERSION[3] = {VERSION_MAJOR, VERSION_MINOR, VERS
 #define VERSION_STRING "\nLMASM v%u.%u.%u (supporting lmvm-ext %u)\nA component of the Little Man Virtual Machine.\nCopyright (c) 2023 obfuscatedgenerated\nMIT License\n\n"
 
 static int debug_mode;
-static int strict_mode;
 static int no_overwrite_mode;
 
 static char *infile_path = NULL;
@@ -42,14 +41,13 @@ static const char *NULL_DEVICE =
 static FILE *debugout = NULL;
 
 #define USAGE_STRING "%s [-h | --help] INFILE [-o | --output OUTFILE] [optional-flags]\n"
-#define OPTIONS "-ho:kvdsx"
+#define OPTIONS "-ho:kvdx"
 static const struct option LONG_OPTIONS[] = {
         {"help",         no_argument,       NULL,         'h'},
         {"output",       required_argument, NULL,         'o'},
         {"no-overwrite", no_argument, &no_overwrite_mode, 'k'},
         {"version",      no_argument,       NULL,         'v'},
         {"debug",        no_argument, &debug_mode,        'd'},
-        {"strict",       no_argument, &strict_mode,       's'},
         {"silent",       no_argument,       NULL,         'x'},
         {NULL,           0,                 NULL,         0}
 };
@@ -70,7 +68,6 @@ static void parse_args(int argc, char **argv) {
                 puts("-k | --no-overwrite:       Keep the output file if it already exists. Refuses to overwrite.");
                 puts("-v | --version:            Show the version number and license information");
                 puts("-d | --debug:              Enable debug mode");
-                puts("-s | --strict:             Enable strict mode. Warnings are treated as errors");
                 puts("-x | --silent:             Silent mode. No output is printed to stdout or stderr");
                 puts("");
                 exit(0);
@@ -91,10 +88,6 @@ static void parse_args(int argc, char **argv) {
             case 'd':
                 // flag not set if using short form
                 debug_mode = 1;
-                break;
-            case 's':
-                // flag not set if using short form
-                strict_mode = 1;
                 break;
             case 'k':
                 // flag not set if using short form
