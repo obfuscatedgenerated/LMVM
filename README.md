@@ -115,7 +115,7 @@ five    DAT 5
 ```asm
 ; Program to safely double the user input without erroring
 
-entry	INP		    ; get user input
+entry	    INP		    ; get user input
 
 	    BRP	check	; check not negative
 	    BRA	entry
