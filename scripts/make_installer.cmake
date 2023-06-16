@@ -1,8 +1,4 @@
-# check if installers are enabled
-if (INSTALLER STREQUAL OFF)
-    MESSAGE(STATUS "Installer disabled, skipping installer generation")
-    return()
-endif()
+cmake_minimum_required(VERSION 3.20)
 
 include(scripts/cmake_modules/DetectArch.cmake)
 target_architecture(ARCH)

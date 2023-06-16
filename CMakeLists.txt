@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.00)
 project(LMVM C)
 
 set(CMAKE_C_STANDARD 99)
@@ -12,7 +12,7 @@ file(GLOB_RECURSE COMMON_SOURCES ${PROJECT_SOURCE_DIR}/src/common/*.c)
 IF (WIN32)
     set(ASM_SOURCES ${ASM_SOURCES} ${PROJECT_SOURCE_DIR}/src/assembler/icon.rc)
     set(VM_SOURCES ${VM_SOURCES} ${PROJECT_SOURCE_DIR}/src/vm/icon.rc)
-ENDIF()
+ENDIF ()
 
 # include header files
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -31,7 +31,7 @@ add_executable(LMASM ${ASM_SOURCES} ${COMMON_SOURCES})
 # add regex library for windows
 IF (WIN32)
     target_link_libraries(LMASM regex)
-ENDIF()
+ENDIF ()
 
 # add LMVM executable
 add_executable(LMVM ${VM_SOURCES} ${COMMON_SOURCES})
@@ -41,14 +41,19 @@ target_compile_definitions(LMASM PRIVATE -DVERSION_MAJOR=${VERSION_MAJOR} -DVERS
 target_compile_definitions(LMVM PRIVATE -DVERSION_MAJOR=${VERSION_MAJOR} -DVERSION_MINOR=${VERSION_MINOR} -DVERSION_PATCH=${VERSION_PATCH})
 
 # use harsh flags
-if(MSVC)
+if (MSVC)
     MESSAGE(STATUS "MSVC is not a supported compiler and may fail!")
     target_compile_options(LMASM PRIVATE /W4 /WX)
     target_compile_options(LMVM PRIVATE /W4 /WX)
-else()
+else ()
     target_compile_options(LMASM PRIVATE -Wall -Wextra -pedantic -Werror)
     target_compile_options(LMVM PRIVATE -Wall -Wextra -pedantic -Werror)
-endif()
+endif ()
 
-# make installer
-include(scripts/make_installer.cmake)
+# check if installers are enabled
+if (INSTALLER STREQUAL OFF)
+    MESSAGE(STATUS "Installer disabled, skipping installer generation")
+else ()
+    # make installer
+    include(scripts/make_installer.cmake)
+endif ()
