@@ -65,9 +65,11 @@ static void parse_args(int argc, char **argv) {
                 printf(VERSION_STRING, VERSION[0], VERSION[1], VERSION[2], EXT_SUPPORTED_VERSION);
                 break;
             case 'x':
-                // redirect stdout and stderr to nowhere
-                freopen(NULL_DEVICE, "w", stdout);
-                freopen(NULL_DEVICE, "w", stderr);
+                // redirect stdout and stderr to nowhere, checking success
+                if (freopen(NULL_DEVICE, "w", stdout) == NULL || freopen(NULL_DEVICE, "w", stderr) == NULL) {
+                    fprintf(stderr, "Error: Failed to redirect stdout and stderr to null device\n");
+                    exit(1);
+                }
                 break;
             case 1:
                 infile_path = optarg;
