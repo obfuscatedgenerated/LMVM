@@ -161,7 +161,7 @@ static void op_inp(
             continue;
         }
 
-        // TODO: check for truncation
+        // TODO: check for truncation (ISSUE #5)
 
         // check input is a valid number
         char *end_ptr;
@@ -174,6 +174,7 @@ static void op_inp(
 
         // TODO: check input is within range of int. not sure how we can, have to deal with wrapping around for now
         // could use long from strtol and then downcast to int when confirmed to be within range
+        // (ISSUE #5)
 
         // input is valid, break out of loop
         break;

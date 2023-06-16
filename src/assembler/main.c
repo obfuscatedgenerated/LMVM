@@ -278,7 +278,7 @@ int main(int argc, char **argv) {
     lmcx_file_descriptor_st *descriptor = checked_malloc(sizeof(lmcx_file_descriptor_st));
     descriptor->data = executable;
 
-    // TODO: trim executable size (remove trailing 0s)
+    // TODO: trim executable size (remove trailing 0s) (ISSUE #2)
     // for this ^^ we'd need to check what addresses are used. we can't eliminate 0s that are used by DATs (might be a cell simply set to 0)
     descriptor->data_size = EXECUTABLE_SIZE;
 

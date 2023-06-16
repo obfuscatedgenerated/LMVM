@@ -277,7 +277,7 @@ token_ll_node_st *lex(char *code) {
 
     // run line-by-line lexing by splitting by newlines
     char *strmax;
-    // TODO: implement own scanner/tokeniser that doesn't skip consecutive newlines
+    // TODO: implement own scanner/tokeniser that doesn't skip consecutive newlines (ISSUE #1)
     // this would mean that the line_idx would be correct for errors, so no need to use imprecise language
     char *line = strtok_r(code, "\n", &strmax);
     size_t line_idx = 0;

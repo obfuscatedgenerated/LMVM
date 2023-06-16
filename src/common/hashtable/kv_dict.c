@@ -25,7 +25,7 @@ kv_dict *new_dict() {
 }
 
 void free_dict(kv_dict *dict) {
-    // TODO: free each entry. ive spent like an hour trying to make it work
+    // TODO: free each entry. ive spent like an hour trying to make it work (ISSUE #4)
     // iterating each entry and freeing it causes a corruption error
     checked_free(dict->entries);
     checked_free(dict);
