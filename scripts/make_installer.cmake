@@ -49,6 +49,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/scripts/nsis_tem
 # set package details
 set(CPACK_PACKAGE_NAME "Little Man Virtual Machine")
 set(CPACK_PACKAGE_VENDOR "obfuscatedgenerated")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER, "obfuscatedgenerated")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://ollieg.codes/")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
