@@ -35,10 +35,15 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
     size_t file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    // read enough bytes to get the largest magic string
+    // read enough bytes to get the largest magic string, checking success
     size_t ext_magic_string_length = strlen(MAGIC_STRING_LMC_EXTENDED);
     char *read_magic_string = checked_malloc(sizeof(char) * ext_magic_string_length);
-    fread(read_magic_string, sizeof(char), ext_magic_string_length, file);
+    if (fread(read_magic_string, sizeof(char), ext_magic_string_length, file) != ext_magic_string_length) {
+        // close the file and return null if the magic string is not valid
+        checked_free(read_magic_string);
+        fclose(file);
+        return NULL;
+    }
 
     unsigned short int ext_version;
     size_t remaining_file_size;
@@ -48,8 +53,13 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
     if (strcmp(read_magic_string, MAGIC_STRING_LMC_EXTENDED) == 0) {
         found_magic_string = 1;
 
-        // read the supported ext version with correct endianness (file always stored in little endian)
-        fread(&ext_version, sizeof(unsigned short int), 1, file);
+        // read the supported ext version with correct endianness (file always stored in little endian), checking success
+        if (fread(&ext_version, sizeof(unsigned short int), 1, file) != sizeof (unsigned short int)) {
+            // close the file and return null if the magic string is not valid
+            checked_free(read_magic_string);
+            fclose(file);
+            return NULL;
+        }
         if (!is_little_endian_machine) {
             ext_version = (ext_version << 8) | (ext_version >> 8);
         }
@@ -79,9 +89,15 @@ lmcx_file_descriptor_st *read_lmcx_file(char *path) {
         remaining_file_size = file_size - magic_string_lmc_length;
     }
 
-    // read the rest of the file
+    // read the rest of the file, checking success
     unsigned short int *data = checked_malloc(sizeof(unsigned short int) * remaining_file_size);
-    fread(data, sizeof(unsigned short int), remaining_file_size, file);
+    if (fread(data, sizeof(unsigned short int), remaining_file_size, file) != remaining_file_size / sizeof(unsigned short int)) {
+        // close the file and return null if the magic string is not valid
+        checked_free(read_magic_string);
+        checked_free(data);
+        fclose(file);
+        return NULL;
+    }
 
     fclose(file);
 
@@ -107,9 +123,14 @@ char *read_text_file(char *path) {
     unsigned int file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    // read the file
+    // read the file, checking success
     char *data = checked_malloc(sizeof(char) * (file_size + 1));
-    fread(data, sizeof(char), file_size, file);
+    if (fread(data, sizeof(char), file_size, file) != file_size) {
+        // close the file and return null if the magic string is not valid
+        checked_free(data);
+        fclose(file);
+        return NULL;
+    }
     data[file_size] = '\0';
 
     fclose(file);
