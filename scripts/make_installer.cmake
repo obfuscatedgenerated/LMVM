@@ -7,15 +7,21 @@ endif()
 include(scripts/cmake_modules/DetectArch.cmake)
 target_architecture(ARCH)
 
-# use findnsis
-include(scripts/cmake_modules/FindNSIS.cmake)
-if (NSIS_FOUND)
-    MESSAGE(STATUS "NSIS found")
-    set(CPACK_GENERATOR NSIS)
-else()
-    MESSAGE(STATUS "NSIS not found, using ZIP")
-    set(CPACK_GENERATOR ZIP)
-endif()
+# use nsis by default if windows, otherwise use zip. always use tar.gz on unix
+# user can override the choice by passing the -G flag to cpack, e.g. -G ZIP to force zip
+IF(WIN32)
+    include(scripts/cmake_modules/FindNSIS.cmake)
+    if (NSIS_FOUND)
+        MESSAGE(STATUS "NSIS found")
+        set(CPACK_GENERATOR NSIS)
+    else()
+        MESSAGE(STATUS "NSIS not found, using ZIP")
+        set(CPACK_GENERATOR ZIP)
+    endif()
+ELSE()
+    MESSAGE(STATUS "Not windows, using tar.gz")
+    set(CPACK_GENERATOR TGZ)
+ENDIF()
 
 # use pandoc to convert readme
 find_program(PANDOC pandoc)
@@ -80,7 +86,8 @@ set(CPACK_NSIS_MUI_HEADERIMAGE_UNBITMAP "${CMAKE_CURRENT_SOURCE_DIR}/images\\\\u
 
 set(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\LMVM.exe")
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/installers")
-set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CMAKE_BUILD_TYPE}-${CPACK_PACKAGE_VERSION}-${ARCH})
+string(REGEX REPLACE " " "_" FIXED_NAME ${CPACK_PACKAGE_NAME})
+set(CPACK_PACKAGE_FILE_NAME ${FIXED_NAME}-${CMAKE_BUILD_TYPE}-${CPACK_PACKAGE_VERSION}-${CMAKE_SYSTEM_NAME}-${ARCH})
 set(CPACK_NSIS_BRANDING_TEXT "LMVM - Little Man Virtual Machine")
 set(CPACK_NSIS_MUI_WELCOMEFINISHPAGE_BITMAP "${CMAKE_CURRENT_SOURCE_DIR}/images\\\\installer_welcome.bmp")
 set(CPACK_NSIS_MUI_UNWELCOMEFINISHPAGE_BITMAP "${CMAKE_CURRENT_SOURCE_DIR}/images\\\\uninstaller_welcome.bmp")
