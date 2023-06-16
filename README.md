@@ -140,6 +140,10 @@ max	    DAT	999
 
 ## Building from source
 
+You need CMake 3.20 or higher, and a C compiler. GCC is recommended (through MINGW on Windows).<br />
+You also need pandoc if you want to generate installers.<br />
+Windows may also install NSIS if you want to generate an NSIS installer.
+
 1. Clone the repository: `git clone https://github.com/obfuscatedgenerated/LMVM.git`
 2. Change directory: `cd LMVM`
 3. Create a build directory: `mkdir build`
