@@ -27,11 +27,10 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Context (please complete the following information):**
-- JDK Version [e.g. 8]
-- JDK Distribution [e.g. AdoptOpenJDK]
-- Plugin Version [e.g. 1.0.0]
-- Proxy [e.g. BungeeCord]
-- [ ] Check if you are using the latest version of the proxy
+- OS [e.g. Windows 10]
+- Compiler and version [e.g. GCC 10.2.0]
+- LMVM version [e.g. 0.1.0]
+- LMASM version [e.g. 0.1.0]
 
 **Additional context**
 Add any other context about the problem here.

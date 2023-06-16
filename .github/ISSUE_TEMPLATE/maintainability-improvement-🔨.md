@@ -21,9 +21,8 @@ If applicable, add screenshots to help explain your problem.
 
 **Your environment (please complete the following information):**
 - OS [e.g. Windows 10]
-- Plugin Version [e.g. 22]
-- IDE [e.g. IntelliJ IDEA]
-- Relevant extensions [e.g. Minecraft Development]
+- IDE [e.g. CLion 2020.2.3]
+- Compiler and version [e.g. GCC 10.2.0]
 
 **Additional context**
 Add any other context about the problem here.
