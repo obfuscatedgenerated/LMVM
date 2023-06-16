@@ -66,7 +66,6 @@ Additionally, these arguments are available:
 | -k         | --no-overwrite   | Keep the output file if it already exists. Refuses to overwrite.                                                  |
 | -v         | --version        | Display version                                                                                                   |
 | -d         | --debug          | Enable debug mode                                                                                                 |
-| -s         | --strict         | Strict mode. Treat warnings as errors.                                                                            |
 | -x         | --silent         | Silent mode. Don't print anything to stdout or stderr.                                                            |
 
 <!-- TODO: option to allow large or negative operands -->
