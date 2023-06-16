@@ -11,6 +11,7 @@
 ## Executables
 
 ### [LMVM (virtual machine)](src/vm)
+
 ### [LMASM (assembler)](src/assembler)
 
 ## Mnemonics
@@ -46,7 +47,8 @@ Labels **must** consist of only Latin letters (abc...xyz), and are case-sensitiv
 
 > **Warning** The available memory addresses are 0-99 only. Any address outside of this range will cause an error.
 
-> **Note** In a DAT statement, the operand is an immediate value. If a label is passed, its address will be used as the value. It is the initial value of the variable.
+> **Note** In a DAT statement, the operand is an immediate value. If a label is passed, its address will be used as the
+> value. It is the initial value of the variable.
 
 ## Using labels
 
@@ -108,13 +110,44 @@ one     DAT 1
 five    DAT 5
 ```
 
+### [Doubler](examples/doubler.lmasm)
+
+```asm
+; Program to safely double the user input without erroring
+
+entry	INP		    ; get user input
+
+	    BRP	check	; check not negative
+	    BRA	entry
+
+; therefore the value is >= 0
+check       SUB	max	    ; check if will exceed max allowed
+            SUB	one
+	    BRP	entry
+	    ADD	one	    ; revert subtraction for range check
+	    ADD	max
+
+; therefore the value is within 0-999, so can be safely STA'd to double
+	    STA	tmp
+	    ADD	tmp
+	    OUT
+	    BRA	entry
+
+tmp         DAT 0
+one	    DAT	1
+max	    DAT	999
+```
+
 ## Building from source
 
 1. Clone the repository: `git clone https://github.com/obfuscatedgenerated/LMVM.git`
 2. Change directory: `cd LMVM`
 3. Create a build directory: `mkdir build`
 4. Change directory: `cd build`
-5. Run CMake generation: `cmake ..` (you can force a specific generator with the `-G <generator>` option, enable release mode with `-DCMAKE_BUILD_TYPE=Release`)<br>
-By default, CPack installer data will be generated. This requires pandoc to be installed. To disable installer generation, pass `-DINSTALLER=OFF` to CMake.
+5. Run CMake generation: `cmake ..` (you can force a specific generator with the `-G <generator>` option, enable release
+   mode with `-DCMAKE_BUILD_TYPE=Release`)<br>
+   By default, CPack installer data will be generated. This requires pandoc to be installed. To disable installer
+   generation, pass `-DINSTALLER=OFF` to CMake.
 6. Build the project: `cmake --build .` (you can specify a specific target with the `--target <target>` option)
-7. Optional: create installers with CPack: `cpack` (you can specify a specific generator with the `-G <generator>` option, enable release mode with `-C Release`)
+7. Optional: create installers with CPack: `cpack` (you can specify a specific generator with the `-G <generator>`
+   option, enable release mode with `-C Release`)
