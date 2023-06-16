@@ -26,28 +26,28 @@ MESSAGE(STATUS "Version v${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 
 # add LMASM executable
-add_executable(LMASM ${ASM_SOURCES} ${COMMON_SOURCES})
+add_executable(lmasm ${ASM_SOURCES} ${COMMON_SOURCES})
 
 # add regex library for windows
 IF (WIN32)
-    target_link_libraries(LMASM regex)
+    target_link_libraries(lmasm regex)
 ENDIF ()
 
 # add LMVM executable
-add_executable(LMVM ${VM_SOURCES} ${COMMON_SOURCES})
+add_executable(lmvm ${VM_SOURCES} ${COMMON_SOURCES})
 
 # add version info to build definitions
-target_compile_definitions(LMASM PRIVATE -DVERSION_MAJOR=${VERSION_MAJOR} -DVERSION_MINOR=${VERSION_MINOR} -DVERSION_PATCH=${VERSION_PATCH})
-target_compile_definitions(LMVM PRIVATE -DVERSION_MAJOR=${VERSION_MAJOR} -DVERSION_MINOR=${VERSION_MINOR} -DVERSION_PATCH=${VERSION_PATCH})
+target_compile_definitions(lmasm PRIVATE -DVERSION_MAJOR=${VERSION_MAJOR} -DVERSION_MINOR=${VERSION_MINOR} -DVERSION_PATCH=${VERSION_PATCH})
+target_compile_definitions(lmvm PRIVATE -DVERSION_MAJOR=${VERSION_MAJOR} -DVERSION_MINOR=${VERSION_MINOR} -DVERSION_PATCH=${VERSION_PATCH})
 
 # use harsh flags
 if (MSVC)
     MESSAGE(STATUS "MSVC is not a supported compiler and may fail!")
-    target_compile_options(LMASM PRIVATE /W4 /WX)
-    target_compile_options(LMVM PRIVATE /W4 /WX)
+    target_compile_options(lmasm PRIVATE /W4 /WX)
+    target_compile_options(lmvm PRIVATE /W4 /WX)
 else ()
-    target_compile_options(LMASM PRIVATE -Wall -Wextra -pedantic -Werror)
-    target_compile_options(LMVM PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(lmasm PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(lmvm PRIVATE -Wall -Wextra -pedantic -Werror)
 endif ()
 
 # check if installers are enabled
