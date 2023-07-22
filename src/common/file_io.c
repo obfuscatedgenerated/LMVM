@@ -126,7 +126,6 @@ char *read_text_file(char *path) {
     // read the file, checking success
     char *data = checked_malloc(sizeof(char) * (file_size + 1));
     if (fread(data, sizeof(char), file_size, file) != file_size) {
-        // close the file and return null if the magic string is not valid
         checked_free(data);
         fclose(file);
         return NULL;
