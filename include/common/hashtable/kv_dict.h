@@ -20,7 +20,7 @@ struct kv_dict_s {
 
 typedef struct kv_dict_s kv_dict;
 
-kv_dict* new_dict();
+kv_dict* new_dict(void);
 
 void free_dict(kv_dict *dict);
 

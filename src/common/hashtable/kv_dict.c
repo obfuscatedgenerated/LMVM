@@ -6,7 +6,7 @@
 #include <string.h>
 #include <assert.h>
 
-kv_dict *new_dict() {
+kv_dict *new_dict(void) {
     kv_dict *dict = checked_malloc(sizeof(kv_dict));
 
     dict->size = 0;
