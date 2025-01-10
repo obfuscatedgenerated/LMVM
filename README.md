@@ -67,6 +67,7 @@ The `IMP` pseudo-instruction imports another file, where the relative or absolut
 | Symbol | Description                                | Example       | Definition of mode                                                                       |
 |--------|--------------------------------------------|---------------|------------------------------------------------------------------------------------------|
 | (none) | Direct                                     | `ADD 5`       | Use the operand as an address to the value                                               |
+| #      | Immediate                                  | `ADD #5`      | Use the operand as the value                                                             |
 | LABEL  | Direct (described by address/DAT at LABEL) | `ADD fivevar` | Use the operand as a label for the address to the value (as declared in a DAT statement) |
 
 Labels **must** consist of only Latin letters (abc...xyz), and are case-sensitive.
