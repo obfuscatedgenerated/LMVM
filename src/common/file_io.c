@@ -186,6 +186,7 @@ write_status_et write_lmcx_file(lmcx_file_descriptor_st *lmcx, char *path, int o
             data[i] = (lmcx->data[i] << 8) | (lmcx->data[i] >> 8);
         }
         fwrite(data, sizeof(unsigned short int), lmcx->data_size, file);
+        checked_free(data);
     }
 
     fclose(file);
